@@ -1,0 +1,2232 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fen Bilimleri Laboratuvarı — Ortaokul</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+  --bg: #0d1117;
+  --bg2: #161b22;
+  --bg3: #1c2330;
+  --panel: #13181f;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.12);
+  --text: #e6edf3;
+  --text2: #8b949e;
+  --text3: #484f58;
+  /* Kategori renkleri */
+  --fizik: #58a6ff;
+  --biyoloji: #3fb950;
+  --kimya: #f78166;
+  --uzay: #bc8cff;
+  --elektrik: #ffa657;
+  
+  --accent: #58a6ff;
+  --glow: rgba(88,166,255,0.15);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { height:100%; background:var(--bg); color:var(--text); font-family:'Nunito',sans-serif; overflow:hidden; }
+
+/* ─── HEADER ─── */
+.header {
+  position:fixed;
+  top:0; left:0; right:0; z-index:200;
+  height:58px; display:flex; align-items:center; gap:16px;
+  padding:0 20px;
+  background:rgba(13,17,23,0.95); backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.logo {
+  font-family:'Fredoka One',cursive;
+  font-size:20px; letter-spacing:0.5px;
+  background:linear-gradient(135deg, #58a6ff, #bc8cff, #3fb950);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  white-space:nowrap;
+}
+.logo-badge {
+  font-size:10px; font-family:'JetBrains Mono',monospace;
+  padding:3px 8px; border-radius:4px;
+  background:rgba(63,185,80,0.12);
+  border:1px solid rgba(63,185,80,0.25);
+  color:#3fb950; letter-spacing:1px; text-transform:uppercase;
+}
+.header-cats { display:flex; gap:6px; margin-left:auto; }
+.hcat {
+  font-size:11px; font-weight:700; padding:5px 12px; border-radius:20px;
+  cursor:pointer;
+  transition:all 0.2s; border:1px solid transparent;
+  font-family:'Nunito',sans-serif;
+}
+.hcat[data-cat="fizik"]    { color:var(--fizik);    border-color:rgba(88,166,255,0.25);    background:rgba(88,166,255,0.06); }
+.hcat[data-cat="biyoloji"] { color:var(--biyoloji); border-color:rgba(63,185,80,0.25);     background:rgba(63,185,80,0.06);
+}
+.hcat[data-cat="kimya"]    { color:var(--kimya);    border-color:rgba(247,129,102,0.25);   background:rgba(247,129,102,0.06); }
+.hcat[data-cat="uzay"]     { color:var(--uzay);     border-color:rgba(188,140,255,0.25);   background:rgba(188,140,255,0.06); }
+.hcat[data-cat="elektrik"] { color:var(--elektrik);
+  border-color:rgba(255,166,87,0.25);    background:rgba(255,166,87,0.06); }
+.hcat:hover { opacity:0.8; transform:translateY(-1px); }
+.hcat.active { opacity:1; transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* ─── LAYOUT ─── */
+.app { display:flex; height:100vh; padding-top:58px; }
+
+/* ─── LEFT SIDEBAR ─── */
+.sidebar {
+  width:210px; flex-shrink:0;
+  background:var(--panel);
+  border-right:1px solid var(--border);
+  overflow-y:auto; padding:12px 0 20px;
+}
+.sb-section { margin-bottom:18px; }
+.sb-cat-header {
+  display:flex; align-items:center; gap:8px;
+  padding:6px 14px; margin-bottom:4px;
+}
+.sb-cat-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.sb-cat-label { font-size:10px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; font-family:'JetBrains Mono',monospace; }
+.sim-item {
+  display:flex; align-items:center; gap:10px;
+  padding:9px 14px; cursor:pointer; transition:all 0.15s;
+  border-left:3px solid transparent; margin:1px 0;
+  position:relative;
+}
+.sim-item:hover { background:rgba(255,255,255,0.03); }
+.sim-item.active { background:rgba(88,166,255,0.06);
+}
+.sim-icon {
+  width:30px; height:30px; border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px; flex-shrink:0;
+  background:var(--bg3); border:1px solid var(--border);
+}
+.sim-info { min-width:0;
+}
+.sim-name { font-size:12px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sim-grade { font-size:10px; color:var(--text3); margin-top:1px; }
+.sim-item.active .sim-name { color:var(--accent);
+}
+
+/* ─── CANVAS ─── */
+.canvas-area { flex:1; display:flex; flex-direction:column; min-width:0; position:relative; overflow:hidden; }
+.toolbar {
+  display:flex; align-items:center; gap:6px;
+  padding:8px 14px;
+  border-bottom:1px solid var(--border);
+  background:var(--bg2); flex-wrap:wrap;
+}
+.tbtn {
+  font-size:11px; font-weight:700; padding:5px 11px; border-radius:6px;
+  cursor:pointer; border:1px solid var(--border2);
+  background:transparent; color:var(--text2);
+  transition:all 0.15s;
+  font-family:'Nunito',sans-serif;
+}
+.tbtn:hover { background:rgba(255,255,255,0.04); color:var(--text); }
+.tbtn.active { background:rgba(88,166,255,0.12); border-color:rgba(88,166,255,0.4); color:var(--fizik); }
+.tsep { width:1px; height:20px; background:var(--border); }
+.tright { margin-left:auto;
+  display:flex; gap:6px; align-items:center; }
+.play-btn {
+  font-size:12px; font-weight:800; padding:6px 16px; border-radius:8px;
+  cursor:pointer; border:none; font-family:'Nunito',sans-serif;
+  transition:all 0.15s; display:flex; align-items:center; gap:5px;
+}
+.play-btn.go { background:linear-gradient(135deg,#2ea043,#3fb950); color:white; }
+.play-btn.go:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(63,185,80,0.4); }
+.play-btn.stop { background:var(--bg3); color:var(--text2); border:1px solid var(--border2);
+}
+.speed-wrap { display:flex; align-items:center; gap:6px; }
+.speed-lbl { font-size:11px; color:var(--text2); font-family:'JetBrains Mono',monospace; }
+input[type=range] {
+  width:70px; appearance:none; height:3px;
+  background:var(--border2); border-radius:2px; cursor:pointer;
+  outline:none;
+}
+input[type=range]::-webkit-slider-thumb {
+  appearance:none; width:13px; height:13px; border-radius:50%;
+  background:var(--accent); cursor:pointer;
+  border:2px solid var(--bg); box-shadow:0 0 0 1px var(--accent);
+}
+
+.canvas-wrap { flex:1; position:relative; overflow:hidden; }
+canvas#mainCanvas { display:block; width:100%; height:100%; }
+
+/* HUD */
+.hud {
+  position:absolute; top:0; left:0; right:0; bottom:0;
+  pointer-events:none;
+}
+.hud-title {
+  position:absolute; top:14px; left:50%; transform:translateX(-50%);
+  font-family:'Fredoka One',cursive; font-size:15px; letter-spacing:2px;
+  color:rgba(255,255,255,0.5); text-transform:uppercase; white-space:nowrap;
+}
+.hud-metrics {
+  position:absolute; top:14px;
+  left:14px;
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  line-height:2;
+}
+.hm-row { display:flex; gap:8px; }
+.hm-k { color:var(--text3); }
+.hm-v { color:#58a6ff; }
+.hud-status {
+  position:absolute; bottom:14px;
+  left:14px;
+  display:flex; align-items:center; gap:6px;
+}
+.sdot { width:6px; height:6px; border-radius:50%; background:#3fb950; animation:sdotpulse 2s infinite; }
+@keyframes sdotpulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.stxt { font-size:10px; font-family:'JetBrains Mono',monospace; color:var(--text2);
+}
+.hud-cat-badge {
+  position:absolute; top:14px; right:14px;
+  font-size:9px; font-family:'JetBrains Mono',monospace;
+  padding:4px 10px; border-radius:20px; letter-spacing:1px; text-transform:uppercase;
+}
+
+/* ─── RIGHT PANEL ─── */
+.rpanel {
+  width:270px; flex-shrink:0;
+  background:var(--panel); border-left:1px solid var(--border);
+  overflow-y:auto; display:flex; flex-direction:column;
+}
+.rp-head { padding:16px;
+  border-bottom:1px solid var(--border); }
+.rp-title { font-family:'Fredoka One',cursive; font-size:18px; margin-bottom:4px; }
+.rp-formula {
+  font-family:'JetBrains Mono',monospace; font-size:12px;
+  padding:4px 10px; border-radius:5px; display:inline-block; margin-bottom:8px;
+}
+.rp-caption { font-size:12px; color:var(--text2); line-height:1.65; }
+
+.rp-tabs { display:flex; border-bottom:1px solid var(--border); }
+.rptab {
+  flex:1; text-align:center; padding:10px 4px; font-size:11px; font-weight:700;
+  cursor:pointer; color:var(--text3); border-bottom:2px solid transparent;
+  transition:all 0.15s; font-family:'Nunito',sans-serif;
+}
+.rptab.active { color:var(--accent); border-bottom-color:var(--accent); }
+.rptc { display:none; }
+.rptc.active { display:block;
+}
+
+.rp-sec { padding:14px; border-bottom:1px solid var(--border); }
+.rp-slabel {
+  font-size:9px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase;
+  color:var(--text3); font-family:'JetBrains Mono',monospace; margin-bottom:10px;
+}
+.srow { margin-bottom:12px;
+}
+.srow-top { display:flex; justify-content:space-between; margin-bottom:5px; align-items:baseline; }
+.slabel { font-size:12px; color:var(--text2); font-weight:600; }
+.sval { font-size:12px; font-family:'JetBrains Mono',monospace; color:var(--text); font-weight:600;
+}
+
+/* Metrics */
+.mgrid { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+.mcard {
+  background:var(--bg3); border-radius:8px; border:1px solid var(--border);
+  padding:9px 11px;
+}
+.mcard-label { font-size:9px; color:var(--text3); margin-bottom:3px; font-family:'JetBrains Mono',monospace; letter-spacing:0.5px; }
+.mcard-val { font-size:17px; font-weight:800; font-family:'JetBrains Mono',monospace; }
+.mcard-unit { font-size:9px; color:var(--text2); margin-top:1px;
+}
+
+/* Mini graph */
+.mini-graph {
+  width:100%; height:75px; border-radius:6px; overflow:hidden;
+  background:var(--bg3); border:1px solid var(--border);
+}
+.graph-svg { width:100%; height:100%;
+}
+
+/* Info blocks */
+.info-block {
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:8px; padding:11px; margin-bottom:8px;
+}
+.info-q { font-size:11px; font-weight:800; margin-bottom:5px;
+}
+.info-a { font-size:11px; color:var(--text2); line-height:1.6; }
+
+/* Fun fact */
+.funfact {
+  border-radius:8px; padding:11px; margin-bottom:8px;
+  border:1px solid; font-size:11px; line-height:1.6;
+}
+.funfact-icon { font-size:16px; margin-bottom:5px; }
+.funfact-txt { color:var(--text2); }
+
+/* Quiz */
+.quiz-q { font-size:13px; font-weight:700; margin-bottom:10px; line-height:1.5; }
+.quiz-opts { display:flex; flex-direction:column; gap:6px;
+}
+.qopt {
+  padding:9px 12px; border-radius:8px; cursor:pointer;
+  border:1px solid var(--border2); background:var(--bg3);
+  font-size:12px; font-weight:600; transition:all 0.15s;
+  text-align:left;
+}
+.qopt:hover { border-color:var(--border2); background:rgba(255,255,255,0.04);
+}
+.qopt.correct { background:rgba(63,185,80,0.12); border-color:rgba(63,185,80,0.4); color:#3fb950; }
+.qopt.wrong { background:rgba(247,129,102,0.12); border-color:rgba(247,129,102,0.4); color:#f78166; }
+.quiz-feedback { margin-top:10px; font-size:12px; line-height:1.6; min-height:30px; }
+.quiz-next { margin-top:8px; padding:8px;
+  border-radius:7px; cursor:pointer; font-size:12px; font-weight:700; border:none; font-family:'Nunito',sans-serif; width:100%; }
+
+/* Steps */
+.step-list { display:flex; flex-direction:column; gap:6px; }
+.step-item { display:flex; gap:10px; align-items:flex-start;
+}
+.step-num {
+  width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:800; flex-shrink:0; margin-top:1px;
+  font-family:'JetBrains Mono',monospace;
+}
+.step-txt { font-size:11px; color:var(--text2); line-height:1.6;
+}
+
+/* Notif */
+.notif {
+  position:fixed; bottom:20px; right:20px; z-index:999;
+  background:var(--bg3); border:1px solid var(--border2);
+  border-radius:10px; padding:10px 16px;
+  font-size:12px; font-weight:600; color:var(--text);
+  display:flex;
+  align-items:center; gap:8px;
+  opacity:0; transform:translateY(8px); transition:all 0.3s; pointer-events:none;
+}
+.notif.show { opacity:1; transform:translateY(0); }
+.ndot { width:6px; height:6px; border-radius:50%; background:#3fb950; flex-shrink:0;
+}
+
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:2px;
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">🔬 Fen Bilimleri Lab</div>
+  <div class="logo-badge">5-8. Sınıf</div>
+  <div class="header-cats">
+    <div class="hcat active" data-cat="fizik" onclick="filterCat('fizik',this)">⚡ Fizik</div>
+    <div class="hcat" data-cat="biyoloji" onclick="filterCat('biyoloji',this)">🌿 Biyoloji</div>
+    <div class="hcat" data-cat="kimya" onclick="filterCat('kimya',this)">⚗️ Kimya</div>
+    <div class="hcat" data-cat="uzay" onclick="filterCat('uzay',this)">🌍 Uzay</div>
+    <div class="hcat" data-cat="elektrik" onclick="filterCat('elektrik',this)">💡 Elektrik</div>
+  </div>
+</header>
+
+<div class="app">
+<div class="sidebar" id="sidebar">
+
+  <div class="sb-section">
+    <div class="sb-cat-header">
+      <div class="sb-cat-dot" style="background:var(--fizik)"></div>
+      <div class="sb-cat-label" style="color:var(--fizik)">Fizik</div>
+    </div>
+    <div class="sim-item active" data-cat="fizik" onclick="selectSim(0,this)" style="border-left-color:var(--fizik)">
+      <div class="sim-icon">🪐</div>
+      <div class="sim-info">
+        <div class="sim-name">Serbest Düşme</div>
+        <div class="sim-grade">6. Sınıf</div>
+      </div>
+    </div>
+    <div class="sim-item" data-cat="fizik" onclick="selectSim(1,this)">
+      <div class="sim-icon">〰️</div>
+      <div class="sim-info">
+        <div class="sim-name">Sarkaç</div>
+        <div class="sim-grade">7. Sınıf</div>
+      </div>
+    </div>
+    <div class="sim-item" data-cat="fizik" onclick="selectSim(2,this)">
+      <div class="sim-icon">🎯</div>
+      <div class="sim-info">
+        <div class="sim-name">Atış Hareketi</div>
+        <div class="sim-grade">8. Sınıf</div>
+      </div>
+    </div>
+    <div class="sim-item" data-cat="fizik" onclick="selectSim(3,this)">
+      <div class="sim-icon">〜〜</div>
+      <div class="sim-info">
+        <div class="sim-name">Dalga Hareketi</div>
+        <div class="sim-grade">7. Sınıf</div>
+      </div>
+    </div>
+    <div class="sim-item" data-cat="fizik" onclick="selectSim(4,this)">
+      <div class="sim-icon">🧲</div>
+      <div class="sim-info">
+        <div class="sim-name">Yay & Kuvvet</div>
+        <div class="sim-grade">6. Sınıf</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-cat-header">
+      <div class="sb-cat-dot" style="background:var(--biyoloji)"></div>
+      <div class="sb-cat-label" style="color:var(--biyoloji)">Biyoloji</div>
+    </div>
+    <div class="sim-item" data-cat="biyoloji" onclick="selectSim(5,this)">
+      <div class="sim-icon">🔬</div>
+      <div class="sim-info">
+        <div class="sim-name">Hücre Yapısı</div>
+        <div class="sim-grade">5. Sınıf</div>
+      </div>
+    </div>
+    <div class="sim-item" data-cat="biyoloji" onclick="selectSim(6,this)">
+      <div class="sim-icon">🌱</div>
+      <div class="sim-info">
+        <div class="sim-name">Fotosentez</div>
+        <div class="sim-grade">6. Sınıf</div>
+      </div>
+    </div>
+    <div class="sim-item" data-cat="biyoloji" onclick="selectSim(7,this)">
+      <div class="sim-icon">🫀</div>
+      <div class="sim-info">
+        <div class="sim-name">Kan Dolaşımı</div>
+        <div class="sim-grade">7. Sınıf</div>
+      </div>
+    </div>
+    <div class="sim-item" data-cat="biyoloji" onclick="selectSim(8,this)">
+      <div class="sim-icon">🧫</div>
+      <div class="sim-info">
+        <div class="sim-name">Bakteri Üremesi</div>
+        <div class="sim-grade">8. Sınıf</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-cat-header">
+      <div class="sb-cat-dot" style="background:var(--kimya)"></div>
+      <div class="sb-cat-label" style="color:var(--kimya)">Kimya</div>
+    </div>
+    <div class="sim-item" data-cat="kimya" onclick="selectSim(9,this)">
+      <div class="sim-icon">⚛️</div>
+      <div class="sim-info">
+        <div class="sim-name">Atom Modeli</div>
+        <div class="sim-grade">7. Sınıf</div>
+      </div>
+    </div>
+    <div class="sim-item" data-cat="kimya" onclick="selectSim(10,this)">
+      <div class="sim-icon">💧</div>
+      <div class="sim-info">
+        <div class="sim-name">Madde Halleri</div>
+        <div class="sim-grade">5. Sınıf</div>
+      </div>
+    </div>
+    <div class="sim-item" data-cat="kimya" onclick="selectSim(11,this)">
+      <div class="sim-icon">🧪</div>
+      <div class="sim-info">
+        <div class="sim-name">Asit-Baz pH</div>
+        <div class="sim-grade">8. Sınıf</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-cat-header">
+      <div class="sb-cat-dot" style="background:var(--uzay)"></div>
+      <div class="sb-cat-label" style="color:var(--uzay)">Uzay</div>
+    </div>
+    <div class="sim-item" data-cat="uzay" onclick="selectSim(12,this)">
+      <div class="sim-icon">☀️</div>
+      <div class="sim-info">
+        <div class="sim-name">Güneş Sistemi</div>
+        <div class="sim-grade">6. Sınıf</div>
+      </div>
+    </div>
+    <div class="sim-item" data-cat="uzay" onclick="selectSim(13,this)">
+      <div class="sim-icon">🌕</div>
+      <div class="sim-info">
+        <div class="sim-name">Ay Evreleri</div>
+        <div class="sim-grade">5. Sınıf</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-cat-header">
+      <div class="sb-cat-dot" style="background:var(--elektrik)"></div>
+      <div class="sb-cat-label" style="color:var(--elektrik)">Elektrik</div>
+    </div>
+    <div class="sim-item" data-cat="elektrik" onclick="selectSim(14,this)">
+      <div class="sim-icon">💡</div>
+      <div class="sim-info">
+        <div class="sim-name">Elektrik Devresi</div>
+        <div class="sim-grade">7. Sınıf</div>
+      </div>
+    </div>
+    <div class="sim-item" data-cat="elektrik" onclick="selectSim(15,this)">
+      <div class="sim-icon">🔋</div>
+      <div class="sim-info">
+        <div class="sim-name">Ohm Yasası</div>
+        <div class="sim-grade">8. Sınıf</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="canvas-area">
+  <div class="toolbar">
+    <button class="tbtn active" id="tbtn-play" onclick="setView('play',this)">▶ Simülasyon</button>
+    <button class="tbtn" id="tbtn-graph" onclick="setView('graph',this)">📈 Grafik</button>
+    <button class="tbtn" id="tbtn-label" onclick="toggleLabels(this)">🏷️ Etiketler</button>
+    <div class="tsep"></div>
+    <button class="tbtn" id="tbtn-trail" onclick="toggleTrail(this)">✦ İz</button>
+    <div class="tright">
+      <div class="speed-wrap">
+        <span class="speed-lbl">hız:</span>
+        <input type="range" min="0.1" max="5" step="0.1" value="1" oninput="setSpeed(this.value)">
+        <span class="speed-lbl" id="speedLbl">1.0×</span>
+      </div>
+      <div class="tsep"></div>
+      <button class="play-btn stop" onclick="resetSim()">↺ Sıfırla</button>
+      <button class="play-btn go" id="playBtn" onclick="togglePlay()">▶ Başlat</button>
+    </div>
+  </div>
+
+  <div class="canvas-wrap">
+    <canvas id="mainCanvas"></canvas>
+    <div class="hud">
+      <div class="hud-metrics" id="hudM">
+        <div class="hm-row"><span class="hm-k">t</span><span class="hm-v" id="hm-t">0.00 s</span></div>
+        <div class="hm-row"><span class="hm-k">y</span><span class="hm-v" id="hm-y">—</span></div>
+        <div class="hm-row"><span class="hm-k">v</span><span class="hm-v" id="hm-v">0.00 m/s</span></div>
+      </div>
+      <div class="hud-title" id="hudTitle">SERBEST DÜŞME</div>
+      <div class="hud-status">
+        <div class="sdot" id="sdot"></div>
+        <div class="stxt" id="stxt">Hazır — Başlat butonuna basın</div>
+      </div>
+      <div class="hud-cat-badge" id="hudBadge" style="background:rgba(88,166,255,0.1);border:1px solid rgba(88,166,255,0.25);color:var(--fizik)">FİZİK</div>
+    </div>
+  </div>
+</div>
+
+<div class="rpanel">
+  <div class="rp-head" id="rpHead">
+    <div class="rp-title" id="rpTitle">Serbest Düşme</div>
+    <div class="rp-formula" id="rpFormula" style="background:rgba(88,166,255,0.08);border:1px solid rgba(88,166,255,0.2);color:var(--fizik)">y = ½gt²</div>
+    <div class="rp-caption" id="rpCaption">Cisimler yerçekimi etkisiyle düşer. Kütle fark etmez — hepsi aynı hızda düşer!</div>
+  </div>
+
+  <div class="rp-tabs">
+    <div class="rptab active" onclick="switchTab('params',this)">Ayarlar</div>
+    <div class="rptab" onclick="switchTab('theory',this)">Bilgi</div>
+    <div class="rptab" onclick="switchTab('quiz',this)">❓ Quiz</div>
+  </div>
+
+  <div class="rptc active" id="rptc-params">
+    <div class="rp-sec" id="paramSec">
+      <div class="rp-slabel">Parametreler</div>
+      <div id="paramControls">
+        <div class="srow">
+          <div class="srow-top"><span class="slabel">Başlangıç yüksekliği</span><span class="sval" id="lv-h">100 m</span></div>
+          <input type="range" min="20" max="300" value="100" oninput="setP('height',this.value,this)">
+        </div>
+        <div class="srow">
+          <div class="srow-top"><span class="slabel">Yerçekimi (g)</span><span class="sval" id="lv-g">9.81 m/s²</span></div>
+          <input type="range" min="1" max="25" step="0.1" value="9.81" oninput="setP('g',this.value,this)">
+        </div>
+        <div class="srow">
+          <div class="srow-top"><span class="slabel">Kütle</span><span class="sval" id="lv-m">1.0 kg</span></div>
+          <input type="range" min="0.1" max="10" step="0.1" value="1" oninput="setP('mass',this.value,this)">
+        </div>
+        <div class="srow">
+          <div class="srow-top"><span class="slabel">Hava direnci</span><span class="sval" id="lv-d">0.00</span></div>
+          <input type="range" min="0" max="1" step="0.01" value="0" oninput="setP('drag',this.value,this)">
+        </div>
+      </div>
+    </div>
+
+    <div class="rp-sec">
+      <div class="rp-slabel">Anlık Değerler</div>
+      <div class="mgrid">
+        <div class="mcard">
+          <div class="mcard-label">YÜKSEKLİK</div>
+          <div class="mcard-val" id="mv-y" style="color:var(--fizik)">100.0</div>
+          <div class="mcard-unit">metre</div>
+        </div>
+        <div class="mcard">
+          <div class="mcard-label">HIZ</div>
+          <div class="mcard-val" id="mv-v" style="color:var(--uzay)">0.0</div>
+          <div class="mcard-unit">m/s</div>
+        </div>
+        <div class="mcard">
+          <div class="mcard-label">ZAMAN</div>
+          <div class="mcard-val" id="mv-t" style="color:var(--biyoloji)">0.00</div>
+          <div class="mcard-unit">saniye</div>
+        </div>
+        <div class="mcard">
+          <div class="mcard-label">KİN. ENERJİ</div>
+          <div class="mcard-val" id="mv-ke" style="color:var(--elektrik)">0.0</div>
+          <div class="mcard-unit">joule</div>
+        </div>
+      </div>
+
+      <div style="margin-top:10px;">
+        <div class="rp-slabel" style="margin-bottom:6px">Enerji Dağılımı</div>
+        <div style="display:flex;gap:3px;height:8px;border-radius:4px;overflow:hidden;background:var(--bg3)">
+          <div id="peBar" style="background:#58a6ff;width:100%;transition:width 0.15s;border-radius:4px"></div>
+          <div id="keBar" style="background:#ffa657;width:0%;transition:width 0.15s;border-radius:4px"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:9px;font-family:'JetBrains Mono';color:var(--text3)">
+          <span style="color:#58a6ff">● Potansiyel</span>
+          <span style="color:#ffa657">● Kinetik</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="rp-sec">
+      <div class="rp-slabel">Hız–Zaman Grafiği</div>
+      <div class="mini-graph">
+        <svg class="graph-svg" id="miniGraph" viewBox="0 0 240 75" preserveAspectRatio="none">
+          <line x1="0" y1="65" x2="240" y2="65" stroke="rgba(255,255,255,0.07)" stroke-width="0.5"/>
+          <polyline id="graphLine" points="0,65" fill="none" stroke="#58a6ff" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="rptc" id="rptc-theory">
+    <div class="rp-sec" id="theoryContent">
+      </div>
+  </div>
+
+  <div class="rptc" id="rptc-quiz">
+    <div class="rp-sec" id="quizContent">
+      </div>
+  </div>
+</div>
+</div>
+
+<div class="notif" id="notif">
+  <div class="ndot"></div>
+  <span id="notifTxt">Bilgi</span>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+//  SİMÜLASYON VERİTABANI
+// ═══════════════════════════════════════
+const SIMS = [
+// 0 - Serbest düşme
+{
+  id:0, cat:'fizik', name:'Serbest Düşme', title:'SERBEST DÜŞME',
+  formula:'y = ½gt²', color:'#58a6ff', grade:'6. Sınıf',
+  caption:'Cisimler yerçekimi etkisiyle düşer. Kütle fark etmez — hepsi aynı hızda düşer!',
+  theory:`
+    <div class="info-block"><div class="info-q">📌 Ne öğreneceğiz?</div><div class="info-a">Galileo Galilei'nin 1589'da Pisa Kulesi'nden iki farklı kütleli top atarak bulduğu gerçeği: Tüm cisimler havada aynı ivmeyle (g ≈ 9.81 m/s²) düşer!</div></div>
+    <div class="info-block"><div class="info-q">📐 Denklemler</div><div class="info-a">• Konum: y = h₀ − ½gt²<br>• Hız: v = g × t<br>• Kinetik enerji: Ek = ½mv²<br>• Potansiyel enerji: Ep = mgh</div></div>
+    <div class="funfact" style="border-color:rgba(88,166,255,0.25);background:rgba(88,166,255,0.06)"><div class="funfact-icon">🚀</div><div class="funfact-txt"><b style="color:#58a6ff">Eğlenceli Bilgi:</b> Ay'da yerçekimi yaklaşık 1.62 m/s²'dir. Aynı topu orada bıraksan çok daha yavaş düşer!</div></div>
+    <div class="step-list">
+      <div class="rp-slabel" style="margin-bottom:8px">Gerçek Hayat Örnekleri</div>
+      <div class="step-item"><div class="step-num" style="background:rgba(88,166,255,0.15);color:#58a6ff">🏀</div><div class="step-txt">Havaya atılan top yükselirken yavaşlar, düşerken hızlanır</div></div>
+      <div class="step-item"><div class="step-num" style="background:rgba(88,166,255,0.15);color:#58a6ff">🌧️</div><div class="step-txt">Yağmur damlaları terminal hıza ulaştığında sabit hızla düşer</div></div>
+      <div class="step-item"><div class="step-num" style="background:rgba(88,166,255,0.15);color:#58a6ff">🎢</div><div class="step-txt">Roller coaster'da serbest düşme hissi tam da bu!</div></div>
+    </div>`,
+  quizzes:[
+    {q:'Yerçekimi ivmesi g nedir?', opts:['1.62 m/s²','9.81 m/s²','3.72 m/s²','0.98 m/s²'], ans:1, exp:'Dünya\'nın yüzeyinde yerçekimi ivmesi yaklaşık 9.81 m/s²\'dir. Ay\'da 1.62, Mars\'ta 3.72 m/s²\'dir.'},
+    {q:'Bir cisim serbest düşerken hızı nasıl değişir?', opts:['Sabit kalır','Azalır','Sürekli artar','Önce artar sonra azalır'], ans:2, exp:'Yerçekimi cisme sürekli kuvvet uyguladığından hız her saniye 9.81 m/s artmaya devam eder.'},
+    {q:'1 kg ve 10 kg lık iki top aynı yükseklikten bırakılırsa ne olur?', opts:['Ağır olan önce düşer','Hafif olan önce düşer','İkisi de aynı anda düşer','Bağlıdır'], ans:2, exp:'Galileo\'nun kanıtladığı gibi hava direnci yoksa kütleden bağımsız olarak tüm cisimler aynı anda yere çarpar!'}
+  ]
+},
+// 1 - Sarkaç
+{
+  id:1, cat:'fizik', name:'Sarkaç', title:'SARKAÇ HAREKETİ',
+  formula:'T = 2π√(L/g)', color:'#58a6ff', grade:'7. Sınıf',
+  caption:'Sarkaç ileri geri salınır. Periyot, kütleye değil ipe bağlıdır!',
+  theory:`
+    <div class="info-block"><div class="info-q">📌 Basit Harmonik Hareket</div><div class="info-a">Sarkaç, denge noktasının çevresinde tekrarlı hareket yapar. Bu harekete "basit harmonik hareket" denir.</div></div>
+    <div class="info-block"><div class="info-q">📐 Periyot Formülü</div><div class="info-a">T = 2π√(L/g)<br>• T: Bir tam salınım süresi (s)<br>• L: İp uzunluğu (m)<br>• g: Yerçekimi ivmesi</div></div>
+    <div class="funfact" style="border-color:rgba(88,166,255,0.25);background:rgba(88,166,255,0.06)"><div class="funfact-icon">⏰</div><div class="funfact-txt"><b style="color:#58a6ff">Tarihi Gerçek:</b> Galileo, katedraldeki sarkacı gözlemleyerek kalp atışlarıyla periyodunu ölçtü — böylece sarkaç saatler icat edildi!</div></div>`,
+  quizzes:[
+    {q:'Sarkaç periyodunu artırmak için ne yapmalıyız?', opts:['Kütleyi artır','İpi kısalt','İpi uzat','Açıyı artır'], ans:2, exp:'T = 2π√(L/g) formülünden görüldüğü gibi ip uzarsa kök içi büyür ve periyot artar.'},
+    {q:'Sarkaç kürecini daha ağır yaparsak periyot ne olur?', opts:['Artar','Azalır','Değişmez','Sıfırlanır'], ans:2, exp:'Kütle formülde yok! Periyot sadece ip uzunluğuna ve yerçekim ivmesine bağlıdır.'}
+  ]
+},
+// 2 - Atış hareketi
+{
+  id:2, cat:'fizik', name:'Atış Hareketi', title:'ATIŞ HAREKETİ',
+  formula:'x=v₀cosθ·t, y=v₀sinθ·t−½gt²', color:'#58a6ff', grade:'8. Sınıf',
+  caption:'Yatay ve düşey hareketleri birlikte incele. Kaç metre gider?',
+  theory:`
+    <div class="info-block"><div class="info-q">📌 İki Boyutlu Hareket</div><div class="info-a">Atış hareketi yatay (sabit hız) ve düşey (serbest düşme) hareketlerin birleşimidir. İkisi bağımsız çalışır!</div></div>
+    <div class="info-block"><div class="info-q">📐 Denklemler</div><div class="info-a">Yatay: x = v₀cosθ × t<br>Düşey: y = v₀sinθ × t − ½gt²<br>Menzil: R = v₀²sin(2θ)/g<br>Max. menzil θ = 45°'de!</div></div>
+    <div class="funfact" style="border-color:rgba(88,166,255,0.25);background:rgba(88,166,255,0.06)"><div class="funfact-icon">⚽</div><div class="funfact-txt"><b style="color:#58a6ff">Sporda Fizik:</b> Futbolda topun gidebileceği en uzak mesafe 45° atışla elde edilir!</div></div>`,
+  quizzes:[
+    {q:'En uzun menzil hangi açıda elde edilir?', opts:['30°','45°','60°','90°'], ans:1, exp:'R = v₀²sin(2θ)/g formülünde sin(2θ) en büyük değerini 2θ=90° yani θ=45°\'de alır.'},
+    {q:'Atış hareketi kaç boyutludur?', opts:['1','2','3','4'], ans:1, exp:'Atış hareketi hem yatay hem düşey yönde gerçekleştiğinden 2 boyutludur.'}
+  ]
+},
+// 3 - Dalga
+{
+  id:3, cat:'fizik', name:'Dalga Hareketi', title:'DALGA HAREKETİ',
+  formula:'v = f × λ', color:'#58a6ff', grade:'7. Sınıf',
+  caption:'Dalgalar enerji taşır, madde değil! Frekans ve dalga boyunu keşfet.',
+  theory:`
+    <div class="info-block"><div class="info-q">📌 Dalga Nedir?</div><div class="info-a">Dalga, ortamda yayılan enerji titreşimidir. Su dalgaları, ses dalgaları, ışık dalgaları hepsi bu kategoridedir.</div></div>
+    <div class="info-block"><div class="info-q">📐 Dalga Formülü</div><div class="info-a">v = f × λ<br>• v: Dalga hızı (m/s)<br>• f: Frekans (Hz) — saniyedeki titreşim sayısı<br>• λ: Dalga boyu (m)</div></div>
+    <div class="funfact" style="border-color:rgba(88,166,255,0.25);background:rgba(88,166,255,0.06)"><div class="funfact-icon">🎵</div><div class="funfact-txt"><b style="color:#58a6ff">Ses = Dalga:</b> Ses saniyede 343 m yayılır. Işık ise saniyede 300.000.000 m!</div></div>`,
+  quizzes:[
+    {q:'Dalga boyu artar, frekans sabit kalırsa dalga hızı ne olur?', opts:['Artar','Azalır','Değişmez','Sıfırlanır'], ans:0, exp:'v = f × λ formülünden λ artınca v de artar (f sabitken).'},
+    {q:'Ses dalgası hangi tür dalgadır?', opts:['Enine dalga','Boyuna dalga','Elektromanyetik dalga','Yüzey dalgası'], ans:1, exp:'Ses, titreşim yönü ile yayılma yönü aynı olan boyuna (longitudinal) bir dalgadır.'}
+  ]
+},
+// 4 - Yay
+{
+  id:4, cat:'fizik', name:'Yay & Kuvvet', title:'HOOKE YASASI',
+  formula:'F = −kx', color:'#58a6ff', grade:'6. Sınıf',
+  caption:'Yayı uzattıkça kuvvet artar. Hooke Yasası: F = −kx',
+  theory:`
+    <div class="info-block"><div class="info-q">📌 Hooke Yasası</div><div class="info-a">Yayın geri çekme kuvveti uzama miktarıyla orantılıdır: F = −kx. k ne kadar büyükse yay o kadar serttir.</div></div>
+    <div class="funfact" style="border-color:rgba(88,166,255,0.25);background:rgba(88,166,255,0.06)"><div class="funfact-icon">🏹</div><div class="funfact-txt"><b style="color:#58a6ff">Gerçek Hayat:</b> Okçulukta yay, araba yayları, bungee atlama — hepsi Hooke Yasası!</div></div>`,
+  quizzes:[
+    {q:'Yay sabiti k büyükse yay nasıldır?', opts:['Yumuşak','Sert','Uzun','Hafif'], ans:1, exp:'k değeri yayın sertliğini gösterir. k büyükse aynı kuvvet az uzama yaratır — yay serttir.'},
+    {q:'Yay 0.2 m uzatıldığında 10 N kuvvet uygulanıyor. k kaçtır?', opts:['2 N/m','50 N/m','0.02 N/m','200 N/m'], ans:1, exp:'k = F/x = 10/0.2 = 50 N/m'}
+  ]
+},
+// 5 - Hücre
+{
+  id:5, cat:'biyoloji', name:'Hücre Yapısı', title:'HAYVAN HÜCRESİ',
+  formula:'Hücre = Yaşamın Temel Birimi', color:'#3fb950', grade:'5. Sınıf',
+  caption:'Tüm canlılar hücrelerden oluşur. Bir hücrenin organellerini keşfet!',
+  theory:`
+    <div class="info-block"><div class="info-q">📌 Hücre Ne?</div><div class="info-a">Hücre, canlıların yapı ve işlev birimidir. Bazı canlılar tek hücreli (amip, bakteri), bazıları çok hücrelidir (insan: ~37 trilyon hücre).</div></div>
+    <div class="info-block"><div class="info-q">🔬 Temel Organeller</div><div class="info-a">• <b>Çekirdek:</b> DNA'nın bulunduğu kontrol merkezi<br>• <b>Mitokondri:</b> Enerji üretim fabrikası (ATP)<br>• <b>Ribozom:</b> Protein sentezleme yeri<br>• <b>Hücre Zarı:</b> Madde geçişini kontrol eder<br>• <b>Golgi Aygıtı:</b> Madde paketleme ve gönderme</div></div>
+    <div class="funfact" style="border-color:rgba(63,185,80,0.25);background:rgba(63,185,80,0.06)"><div class="funfact-icon">🧬</div><div class="funfact-txt"><b style="color:#3fb950">İlginç:</b> İnsan vücudundaki DNA'yı düz çizersen 2 metre gelir — ve bu minik bir hücre çekirdeğine sığar!</div></div>`,
+  quizzes:[
+    {q:'Hücrenin enerji merkezi hangisidir?', opts:['Çekirdek','Ribozom','Mitokondri','Hücre Zarı'], ans:2, exp:'Mitokondri, hücrenin enerji santrali olarak ATP üretir. Bu yüzden "hücrenin güç istasyonu" denir.'},
+    {q:'DNA hücrenin neresinde bulunur?', opts:['Mitokondri','Ribozom','Çekirdek','Hücre Zarı'], ans:2, exp:'DNA\'nın büyük bölümü çekirdekte bulunur. DNA, genetik bilgiyi taşır ve protein sentezini yönetir.'},
+    {q:'Hayvan hücresinde olmayan organel hangisidir?', opts:['Çekirdek','Kloroplast','Mitokondri','Ribozom'], ans:1, exp:'Kloroplast sadece bitki hücrelerinde bulunur ve fotosentez yapar. Hayvan hücrelerinde yoktur.'}
+  ]
+},
+// 6 - Fotosentez
+{
+  id:6, cat:'biyoloji', name:'Fotosentez', title:'FOTOSENTEz',
+  formula:'6CO₂+6H₂O+Işık→C₆H₁₂O₆+6O₂', color:'#3fb950', grade:'6. Sınıf',
+  caption:'Bitkiler güneş ışığını yiyeceğe dönüştürür. Tüm yaşamın temelidir!',
+  theory:`
+    <div class="info-block"><div class="info-q">📌 Fotosentez Nedir?</div><div class="info-a">Bitkiler karbondioksit (CO₂) ve suyu (H₂O) güneş enerjisiyle şekere (glikoz) dönüştürür. Yan ürün oksijen bizim soluduğumuz hava!</div></div>
+    <div class="info-block"><div class="info-q">🌿 Gerekli Maddeler</div><div class="info-a">GİREN: CO₂ (hava) + H₂O (su) + Güneş ışığı<br>ÇIKAN: C₆H₁₂O₆ (şeker/besin) + O₂ (oksijen)<br><br>Kloroplastlardaki klorofil pigmenti ışığı yakalayan antendir!</div></div>
+    <div class="funfact" style="border-color:rgba(63,185,80,0.25);background:rgba(63,185,80,0.06)"><div class="funfact-icon">🌍</div><div class="funfact-txt"><b style="color:#3fb950">Hayat Kurtarıcı:</b> Atmosferdeki oksijenin büyük çoğunluğunu bitkiler ve fitoplanktonlar üretir!</div></div>`,
+  quizzes:[
+    {q:'Fotosentez nerede gerçekleşir?', opts:['Mitokondri','Çekirdek','Kloroplast','Ribozom'], ans:2, exp:'Fotosentez, bitki hücrelerinin kloroplast organelinde gerçekleşir. İçindeki klorofil pigmenti ışığı soğurur.'},
+    {q:'Fotosentezin yan ürünü nedir?', opts:['Karbondioksit','Su','Glikoz','Oksijen'], ans:3, exp:'Fotosentez sonucunda oluşan oksijen, su moleküllerinin ışıkla parçalanmasından çıkar ve atmosfere salınır.'},
+    {q:'Yapraklarda yeşil rengi veren pigment nedir?', opts:['Klorofil','Melanin','Hemoglobin','Karoten'], ans:0, exp:'Klorofil, güneş ışığının kırmızı ve mavi dalga boylarını soğurur, yeşili yansıtır — bu yüzden yapraklar yeşil görünür.'}
+  ]
+},
+// 7 - Kan Dolaşımı
+{
+  id:7, cat:'biyoloji', name:'Kan Dolaşımı', title:'KAN DOLAŞIMI',
+  formula:'Kalp Atışı ≈ 70/dk', color:'#3fb950', grade:'7. Sınıf',
+  caption:'Kan vücudu dolaşarak oksijen ve besin taşır. Kalp pompadır!',
+  theory:`
+    <div class="info-block"><div class="info-q">📌 Dolaşım Sistemi</div><div class="info-a">Kalp, akciğerler ve kan damarlarından oluşur. Kan; oksijen, besinler ve atık maddeleri taşır.</div></div>
+    <div class="info-block"><div class="info-q">🩸 Kan Hücreleri</div><div class="info-a">• <b>Alyuvar (eritrosit):</b> Oksijen taşır, hemoglobin içerir<br>• <b>Akyuvar (lökosit):</b> Bağışıklık sistemi, mikroplarla savaşır<br>• <b>Trombosit:</b> Yaraları pıhtılaştırarak kapatır<br>• <b>Plazma:</b> Kanın sıvı kısmı (%55)</div></div>
+    <div class="funfact" style="border-color:rgba(63,185,80,0.25);background:rgba(63,185,80,0.06)"><div class="funfact-icon">❤️</div><div class="funfact-txt"><b style="color:#3fb950">Kalp Gerçeği:</b> Kalp günde ~100.000 kez atar ve ömür boyu hiç dinlenmeden çalışır!</div></div>`,
+  quizzes:[
+    {q:'Oksijen taşıyan kan hücresi hangisidir?', opts:['Akyuvar','Trombosit','Alyuvar','Plazma'], ans:2, exp:'Alyuvarlar (eritrositler) içerdikleri hemoglobin proteini sayesinde oksijen taşır. Bu yüzden kan kırmızıdır.'},
+    {q:'Kalbin görevi nedir?', opts:['Sindirim','Kan pompalama','Solunum','Düşünme'], ans:1, exp:'Kalp, kanı tüm vücuda pompalayan kas yapılı bir organdır. Sağ taraf kirli kan, sol taraf temiz kan pompalar.'}
+  ]
+},
+// 8 - Bakteri
+{
+  id:8, cat:'biyoloji', name:'Bakteri Üremesi', title:'BAKTERİ ÜREMESİ',
+  formula:'N = N₀ × 2ⁿ', color:'#3fb950', grade:'8. Sınıf',
+  caption:'Bakteriler ikiye bölünerek ürer. Sayıları üstel olarak artar!',
+  theory:`
+    <div class="info-block"><div class="info-q">📌 İkiye Bölünme</div><div class="info-a">Bakteriler, ebeveyn hücrenin ikiye bölünmesiyle çoğalır. İdeal koşullarda her 20 dakikada bir bölünebilirler!</div></div>
+    <div class="info-block"><div class="info-q">📐 Formül</div><div class="info-a">N = N₀ × 2ⁿ<br>• N₀: Başlangıç sayısı<br>• n: Bölünme sayısı<br>• 1 bakteriden 24 saatte → 4.7 trilyon!</div></div>
+    <div class="funfact" style="border-color:rgba(63,185,80,0.25);background:rgba(63,185,80,0.06)"><div class="funfact-icon">🦠</div><div class="funfact-txt"><b style="color:#3fb950">Vücudundaki Bakteriler:</b> Bağırsaklarında yaklaşık 100 trilyon bakteri yaşar ve sindirime yardım eder!</div></div>`,
+  quizzes:[
+    {q:'1 bakteri 3 bölünme sonunda kaç olur?', opts:['3','6','8','16'], ans:2, exp:'N = 1 × 2³ = 8. Her bölünmede sayı ikiye katlanır: 1→2→4→8'},
+    {q:'Bakterilerin çoğalma şekli nedir?', opts:['Tohumla','İkiye bölünme','Yumurtayla','Sporla'], ans:1, exp:'Bakteriler "ikiye bölünme" (binary fission) ile aseksüel olarak çoğalır. Tek bir bakteri, klonlanarak iki eş hücre oluşturur.'}
+  ]
+},
+// 9 - Atom
+{
+  id:9, cat:'kimya', name:'Atom Modeli', title:'BOHR ATOM MODELİ',
+  formula:'E = hf', color:'#f78166', grade:'7. Sınıf',
+  caption:'Atom çekirdek ve etrafında dönen elektronlardan oluşur!',
+  theory:`
+    <div class="info-block"><div class="info-q">📌 Atom Ne?</div><div class="info-a">Atom, maddenin en küçük yapı birimidir. Çekirdekte proton (+) ve nötron (0) bulunur, etrafında elektronlar (−) yörüngede döner.</div></div>
+    <div class="info-block"><div class="info-q">⚛️ Atomun Parçaları</div><div class="info-a">• <b>Proton:</b> Pozitif yüklü, atom numarasını belirler<br>• <b>Nötron:</b> Yüksüz, atom kütlesine katkıda bulunur<br>• <b>Elektron:</b> Negatif yüklü, kimyasal bağları oluşturur<br>• Çekirdek atomun ~100.000'de 1'i kadar küçüktür!</div></div>
+    <div class="funfact" style="border-color:rgba(247,129,102,0.25);background:rgba(247,129,102,0.06)"><div class="funfact-icon">💫</div><div class="funfact-txt"><b style="color:#f78166">Şaşırtıcı:</b> Atomun büyük çoğunluğu boşluktur! Çekirdeği bir top buyutsak elektron kilometrelerce uzakta olurdu.</div></div>`,
+  quizzes:[
+    {q:'Atom numarası neyi gösterir?', opts:['Nötron sayısı','Proton sayısı','Elektron sayısı','Kütle'], ans:1, exp:'Atom numarası (Z) bir atomdaki proton sayısına eşittir. Proton sayısı elementin kimliğini belirler.'},
+    {q:'Elektron negatif yüklüdür. Proton nasıldır?', opts:['Negatif','Nötr','Pozitif','Yüksüz'], ans:2, exp:'Proton pozitif yüklüdür. Proton ve elektron sayıları eşit olduğunda atom elektrik açısından nötrdür.'},
+    {q:'Helyum atomunun 2 protonu ve 2 nötronu var. Kütle numarası kaçtır?', opts:['2','4','6','8'], ans:1, exp:'Kütle numarası = Proton + Nötron = 2 + 2 = 4. Bu yüzden helyum periyodik tabloda He-4 olarak gösterilir.'}
+  ]
+},
+// 10 - Madde Halleri
+{
+  id:10, cat:'kimya', name:'Madde Halleri', title:'MADDENİN HALLERİ',
+  formula:'Katı → Sıvı → Gaz', color:'#f78166', grade:'5. Sınıf',
+  caption:'Madde ısıtılıp soğutulunca hal değiştirir. Moleküller dans eder!',
+  theory:`
+    <div class="info-block"><div class="info-q">📌 Üç Hal</div><div class="info-a"><b>Katı:</b> Sabit şekil, moleküller sıkı paketli titreşir<br><b>Sıvı:</b> Akışkan, moleküller yakın ama özgür<br><b>Gaz:</b> Her yere yayılır, moleküller çok hızlı ve uzak</div></div>
+    <div class="info-block"><div class="info-q">🌡️ Hal Değişimleri</div><div class="info-a">• Katı→Sıvı: Erime (ısı alınır)<br>• Sıvı→Gaz: Buharlaşma (ısı alınır)<br>• Gaz→Sıvı: Yoğuşma (ısı verilir)<br>• Sıvı→Katı: Donma (ısı verilir)<br>• Katı→Gaz: Süblimleşme (kuru buz!)</div></div>
+    <div class="funfact" style="border-color:rgba(247,129,102,0.25);background:rgba(247,129,102,0.06)"><div class="funfact-icon">❄️</div><div class="funfact-txt"><b style="color:#f78166">Dördüncü Hal:</b> Plazma! Yıldızlar ve şimşek plazmadan oluşur — parçacıklar iyonize olmuş gazdır.</div></div>`,
+  quizzes:[
+    {q:'Su 100°C\'de ne hale geçer?', opts:['Katı','Sıvı kalır','Gaz','Plazma'], ans:2, exp:'Su 100°C\'de kaynayarak buharlaşır ve sıvıdan gaz haline (su buharı) geçer.'},
+    {q:'Gaz halindeki madde nasıldır?', opts:['Sabit şekilli','Sıkıştırılamaz','Kapları doldurur','Her ikisi'], ans:2, exp:'Gaz molekülleri birbirinden çok uzak ve çok hızlı hareket eder. Bu yüzden içine konduğu kabın tüm şeklini alır.'}
+  ]
+},
+// 11 - Asit-Baz
+{
+  id:11, cat:'kimya', name:'Asit-Baz pH', title:'ASİT BAZ & pH',
+  formula:'pH = −log[H⁺]', color:'#f78166', grade:'8. Sınıf',
+  caption:'pH 0-14 arası maddelerin asit veya baz özelliğini gösterir.',
+  theory:`
+    <div class="info-block"><div class="info-q">📌 pH Ölçeği</div><div class="info-a">• pH < 7: Asit (limon suyu pH≈2)<br>• pH = 7: Nötr (saf su)<br>• pH > 7: Baz (sabun pH≈9-10)<br><br>Her 1 pH farkı, konsantrasyonun 10 kat değişmesi demektir!</div></div>
+    <div class="info-block"><div class="info-q">🧪 Günlük Hayat</div><div class="info-a">• Mide asidi: pH ≈ 1-2<br>• Limon: pH ≈ 2-3<br>• Domates: pH ≈ 4<br>• Kan: pH ≈ 7.4<br>• Çamaşır sodası: pH ≈ 11</div></div>
+    <div class="funfact" style="border-color:rgba(247,129,102,0.25);background:rgba(247,129,102,0.06)"><div class="funfact-icon">🔴🔵</div><div class="funfact-txt"><b style="color:#f78166">Turnusol:</b> Kırmızı turnusol kağıdı bazda mavi, mavi turnusol kağıdı asitte kırmızıya döner!</div></div>`,
+  quizzes:[
+    {q:'pH 3 olan bir madde nasıldır?', opts:['Baz','Nötr','Asit','Tuz'], ans:2, exp:'pH 7\'nin altı asit, 7\'nin üstü bazdır. pH 3, limon suyu gibi kuvvetlice asidiktir.'},
+    {q:'Saf suyun pH\'ı kaçtır?', opts:['0','7','14','1'], ans:1, exp:'Saf su ne asit ne bazdır — nötrdür. pH\'ı tam olarak 7\'dir.'}
+  ]
+},
+// 12 - Güneş Sistemi
+{
+  id:12, cat:'uzay', name:'Güneş Sistemi', title:'GÜNEŞ SİSTEMİ',
+  formula:'F = G·m₁m₂/r²', color:'#bc8cff', grade:'6. Sınıf',
+  caption:'8 gezegen Güneş\'in etrafında döner. Birlikte keşfedelim!',
+  theory:`
+    <div class="info-block"><div class="info-q">☀️ Gezegenler</div><div class="info-a">Merkür, Venüs, Dünya, Mars (iç gezegenler — kayalık)<br>Jüpiter, Satürn, Uranüs, Neptün (dış gezegenler — gaz devleri)<br><br>Plüton 2006'dan beri "cüce gezegen" sayılır.</div></div>
+    <div class="info-block"><div class="info-q">🔭 Newton Çekim Yasası</div><div class="info-a">F = G × m₁ × m₂ / r²<br>Gezegenleri yörüngede tutan yerçekimidir. Güneşin kütlesi çok büyük olduğu için hepsini "tutar".</div></div>
+    <div class="funfact" style="border-color:rgba(188,140,255,0.25);background:rgba(188,140,255,0.06)"><div class="funfact-icon">🪐</div><div class="funfact-txt"><b style="color:#bc8cff">Satürn:</b> Halkaları buz parçacıklarından oluşur. Satürn o kadar hafiftir ki suya koysan yüzer!</div></div>`,
+  quizzes:[
+    {q:'Güneş sisteminin en büyük gezegeni hangisidir?', opts:['Satürn','Dünya','Jüpiter','Neptün'], ans:2, exp:'Jüpiter, Güneş Sistemi\'nin en büyük gezegenidir. Kütlesi diğer tüm gezegenlerin toplamının 2.5 katıdır!'},
+    {q:'Hangi gezegen Güneş\'e en yakındır?', opts:['Venüs','Dünya','Merkür','Mars'], ans:2, exp:'Merkür, Güneş\'e en yakın gezegendir. Yüzeyi çok sıcak (430°C) ama gece −180°C\'ye kadar düşer.'},
+    {q:'Dünya Güneş\'in etrafında kaç günde döner?', opts:['24 saat','30 gün','365 gün','7 gün'], ans:2, exp:'Dünya Güneş\'in etrafındaki yörüngesini yaklaşık 365.25 günde tamamlar. Bu bir yıldır! 0.25 gün 4 yılda bir artık yıl yaratır.'}
+  ]
+},
+// 13 - Ay Evreleri
+{
+  id:13, cat:'uzay', name:'Ay Evreleri', title:'AY EVRELERİ',
+  formula:'Ay Periyodu ≈ 29.5 gün', color:'#bc8cff', grade:'5. Sınıf',
+  caption:'Ay Dünya\'nın etrafında dönerken farklı evreler oluşturur!',
+  theory:`
+    <div class="info-block"><div class="info-q">🌙 8 Evre</div><div class="info-a">Yeni Ay → İlk Hilal → İlk Dördün → Şişen Hilal → Dolunay → Azalan Hilal → Son Dördün → Eski Hilal → Yeni Ay</div></div>
+    <div class="info-block"><div class="info-q">💡 Neden Evreler Oluşur?</div><div class="info-a">Ay kendi ışığı olmayan bir cisimdir. Güneş ışığını yansıtır. Ay Dünya'nın etrafında döndükçe Güneş'in aydınlattığı kısım değişir — bu da evreleri yaratır.</div></div>
+    <div class="funfact" style="border-color:rgba(188,140,255,0.25);background:rgba(188,140,255,0.06)"><div class="funfact-icon">🌊</div><div class="funfact-txt"><b style="color:#bc8cff">Gelgitler:</b> Ay'ın çekim kuvveti okyanus suyunu çeker — bu med ve cezir olayını yaratır!</div></div>`,
+  quizzes:[
+    {q:'Dolunay ne zaman oluşur?', opts:['Ay Güneş\'in önündeyken','Dünya Ay ile Güneş arasındayken','Ay Dünya\'nın arkasındayken','Hiçbiri'], ans:1, exp:'Dolunayda Dünya Güneş ile Ay arasındadır. Bu konumda Ay\'ın Güneş\'e bakan yüzünün tamamı aydınlanmış görünür.'},
+    {q:'Ay\'ın Dünya etrafındaki dönüş süresi kaçtır?', opts:['7 gün','15 gün','29.5 gün','365 gün'], ans:2, exp:'Ay, Dünya\'nın etrafında yaklaşık 29.5 günde bir tur atar. Bu bir ay takvimi periyodudur.'}
+  ]
+},
+// 14 - Devre
+{
+  id:14, cat:'elektrik', name:'Elektrik Devresi', title:'ELEKTRİK DEVRESİ',
+  formula:'I = V/R (Ohm Yasası)', color:'#ffa657', grade:'7. Sınıf',
+  caption:'Seri ve paralel devreleri karşılaştır. Akım nereye akar?',
+  theory:`
+    <div class="info-block"><div class="info-q">⚡ Temel Kavramlar</div><div class="info-a">• <b>Akım (I):</b> Elektron akışı — amper (A)<br>• <b>Gerilim (V):</b> Elektrik potansiyel farkı — volt (V)<br>• <b>Direnç (R):</b> Akım engeli — ohm (Ω)<br>• Ohm Yasası: V = I × R</div></div>
+    <div class="info-block"><div class="info-q">🔌 Seri vs Paralel</div><div class="info-a"><b>Seri:</b> Lambalar tek tek söner, akım aynı, voltaj bölüşülür<br><b>Paralel:</b> Bir lamba sönsün diğeri yanar, voltaj aynı, akım bölüşülür</div></div>
+    <div class="funfact" style="border-color:rgba(255,166,87,0.25);background:rgba(255,166,87,0.06)"><div class="funfact-icon">🏠</div><div class="funfact-txt"><b style="color:#ffa657">Ev Devresi:</b> Evlerdeki elektrik paralel devredir! Bu yüzden bir lambayı söndürünce diğerleri yanar.</div></div>`,
+  quizzes:[
+    {q:'V=12V ve R=4Ω ise akım kaç amperdir?', opts:['48A','3A','8A','0.33A'], ans:1, exp:'I = V/R = 12/4 = 3 Amper. Ohm Yasası: Gerilim dirençle bölünür, akım elde edilir.'},
+    {q:'Evlerde hangi devre tipi kullanılır?', opts:['Seri','Paralel','Karma','Hiçbiri'], ans:1, exp:'Evlerde paralel devre kullanılır. Böylece her cihaz tam gerilimi alır ve bağımsız çalışır.'},
+    {q:'Direnç artarsa akım ne olur (gerilim sabit)?', opts:['Artar','Azalır','Değişmez','Sıfırlanır'], ans:1, exp:'I = V/R formülünde R büyüyünce kesir küçülür ve I azalır. Direnç akım için engeldir.'}
+  ]
+},
+// 15 - Ohm
+{
+  id:15, cat:'elektrik', name:'Ohm Yasası', title:'OHM YASASI',
+  formula:'V = I × R', color:'#ffa657', grade:'8. Sınıf',
+  caption:'Gerilim, akım ve direnç ilişkisini interaktif olarak keşfet!',
+  theory:`
+    <div class="info-block"><div class="info-q">📌 Ohm Yasası</div><div class="info-a">V = I × R<br>1 ohm = 1 volt / 1 amper<br><br>Üçgen yöntemi: V üstte, I ve R altta. İstediğini parmağınla kapat, diğer ikisinin işlemini bul!</div></div>
+    <div class="info-block"><div class="info-q">⚡ Güç Formülü</div><div class="info-a">P = V × I = I² × R = V²/R<br>• P: Güç (watt = W)<br>• 100W lamba = 100 joule/saniye tüketir</div></div>
+    <div class="funfact" style="border-color:rgba(255,166,87,0.25);background:rgba(255,166,87,0.06)"><div class="funfact-icon">👨‍🔬</div><div class="funfact-txt"><b style="color:#ffa657">Georg Ohm (1789-1854):</b> Alman fizikçi Ohm, bu yasayı deneylerle keşfetti. Başlangıçta ciddiye alınmadı ama bugün temel yasa!</div></div>`,
+  quizzes:[
+    {q:'P = V × I formülünde P nedir?', opts:['Direnç','Gerilim','Güç','Akım'], ans:2, exp:'P, elektrik gücünü temsil eder ve birimi Watt (W)\'tır. 1 W = 1 V × 1 A.'},
+    {q:'3A akım ve 5Ω direnç varsa gerilim kaç volttur?', opts:['1.67V','8V','15V','0.6V'], ans:2, exp:'V = I × R = 3 × 5 = 15 Volt. Ohm Yasasını doğrudan uyguluyoruz.'}
+  ]
+}
+];
+
+// ═══════════════════════════════════════
+//  CANVAS & STATE
+// ═══════════════════════════════════════
+const canvas = document.getElementById('mainCanvas');
+const ctx = canvas.getContext('2d');
+const wrap = canvas.parentElement;
+
+let W, H;
+function resize() {
+  W = canvas.width = wrap.clientWidth;
+  H = canvas.height = wrap.clientHeight;
+}
+resize();
+window.addEventListener('resize', () => { resize(); });
+
+let currentSim = 0;
+let playing = false;
+let simTime = 0;
+let simSpeed = 1;
+let showLabels = true;
+let showTrail = false;
+let viewMode = 'play';
+let graphData = [];
+let quizIdx = 0;
+
+let params = { height:100, g:9.81, mass:1, drag:0, angle:45, len:8, k:5 };
+// Generic state per simulation
+let state = {};
+
+// ═══════════════════════════════════════
+//  DRAW HELPERS
+// ═══════════════════════════════════════
+function clearCanvas() {
+  ctx.fillStyle = '#0d1117';
+  ctx.fillRect(0, 0, W, H);
+}
+
+function drawGrid(spacing=50, color='rgba(255,255,255,0.03)') {
+  ctx.strokeStyle = color; ctx.lineWidth = 0.5;
+  for(let x=0; x<W; x+=spacing) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for(let y=0; y<H; y+=spacing) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+  }
+}
+
+function circle(x,y,r,fill,stroke,sw=2) {
+  ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+  if(fill) { ctx.fillStyle=fill; ctx.fill(); }
+  if(stroke) { ctx.strokeStyle=stroke; ctx.lineWidth=sw; ctx.stroke();
+  }
+}
+
+function label(txt, x, y, col='rgba(255,255,255,0.7)', size=12) {
+  if(!showLabels) return;
+  ctx.font = `600 ${size}px Nunito`;
+  ctx.fillStyle = col;
+  ctx.fillText(txt, x, y);
+}
+
+function glow(x, y, r, col, alpha=0.3) {
+  const gr = ctx.createRadialGradient(x,y,0,x,y,r);
+  gr.addColorStop(0, col.replace(')',`,${alpha})`).replace('rgb','rgba'));
+  gr.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+}
+
+// ═══════════════════════════════════════
+//  SIMÜLASYONLAR
+// ═══════════════════════════════════════
+
+// --- 0: SERBEST DÜŞME ---
+function initFreeFall() {
+  state = { y: params.height, v: 0, trail: [] };
+}
+function drawFreeFall(dt) {
+  clearCanvas(); drawGrid();
+  const h0 = params.height;
+  const scale = (H * 0.85) / h0;
+  const gnd = H - 40;
+  const ballX = W / 2;
+  if(playing) {
+    simTime += dt * simSpeed;
+    const d = params.drag;
+    state.y = Math.max(0, h0 - 0.5 * params.g * simTime * simTime * (1 - d * 0.3));
+    state.v = params.g * simTime * (1 - d * 0.3);
+    if(state.y <= 0) { state.y=0; stop(); showNotif('💥 Yere çarptı!');
+    }
+  }
+  const py = gnd - state.y * scale;
+  if(showTrail && playing) {
+    state.trail.push({x:ballX, y:py});
+    if(state.trail.length > 300) state.trail.shift();
+  }
+  // Ground
+  ctx.fillStyle='rgba(63,185,80,0.12)'; ctx.fillRect(0,gnd,W,H-gnd);
+  ctx.strokeStyle='#3fb950'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(0,gnd); ctx.lineTo(W,gnd); ctx.stroke();
+  // Tower line
+  ctx.strokeStyle='rgba(88,166,255,0.15)'; ctx.lineWidth=1; ctx.setLineDash([5,5]);
+  ctx.beginPath(); ctx.moveTo(ballX,gnd); ctx.lineTo(ballX,gnd-h0*scale); ctx.stroke();
+  ctx.setLineDash([]);
+  // Height tick
+  label(`${h0}m`, ballX+12, gnd-h0*scale+4, '#3fb950', 11);
+  label(`0m`, ballX+12, gnd-4, '#3fb950', 11);
+  // Trail
+  if(state.trail.length>1) {
+    ctx.strokeStyle='rgba(88,166,255,0.3)'; ctx.lineWidth=2; ctx.beginPath();
+    state.trail.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y)); ctx.stroke();
+  }
+  // Ball glow
+  glow(ballX, py, 60, 'rgb(88,166,255)', 0.15);
+  circle(ballX, py, 22, '#1a3a6a', '#58a6ff', 3);
+  ctx.font='bold 14px serif';
+  ctx.fillStyle='white'; ctx.textAlign='center';
+  ctx.fillText('⚽', ballX, py+5); ctx.textAlign='left';
+  // Labels
+  label(`y = ${state.y.toFixed(1)} m`, ballX+30, py-8, '#58a6ff', 12);
+  label(`v = ${state.v.toFixed(1)} m/s`, ballX+30, py+12, '#bc8cff', 12);
+  // Velocity arrow
+  if(state.v > 0.5) {
+    const arrLen = Math.min(state.v * 2.5, 80);
+    ctx.strokeStyle='#f78166'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(ballX-30, py); ctx.lineTo(ballX-30, py+arrLen); ctx.stroke();
+    ctx.fillStyle='#f78166'; ctx.beginPath(); ctx.moveTo(ballX-30,py+arrLen); ctx.lineTo(ballX-36,py+arrLen-10); ctx.lineTo(ballX-24,py+arrLen-10); ctx.fill();
+    label('v', ballX-48, py+arrLen/2, '#f78166', 11);
+  }
+  updateMetrics(state.y, state.v, 0.5*params.mass*state.v*state.v);
+}
+
+// --- 1: SARKAÇ ---
+function initPendulum() {
+  state = { angle: Math.PI/4, vel: 0, trail: [] };
+}
+function drawPendulum(dt) {
+  clearCanvas(); drawGrid();
+  const cx = W/2, cy = H*0.2, L = Math.min(W,H)*0.45;
+  if(playing) {
+    simTime += dt*simSpeed;
+    const omega = Math.sqrt(params.g/L*100)/10;
+    state.vel -= omega*omega*Math.sin(state.angle)*dt*simSpeed;
+    state.vel *= 0.9998;
+    state.angle += state.vel*dt*simSpeed;
+  }
+  const bx = cx + Math.sin(state.angle)*L;
+  const by = cy + Math.cos(state.angle)*L;
+  // Pivot
+  ctx.fillStyle='#484f58'; ctx.beginPath(); ctx.arc(cx,cy,8,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='#8b949e'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(cx-20,cy); ctx.lineTo(cx+20,cy); ctx.stroke();
+  // Trail
+  if(showTrail) {
+    state.trail.push({x:bx,y:by});
+    if(state.trail.length>200) state.trail.shift();
+    if(state.trail.length>1) {
+      ctx.strokeStyle='rgba(188,140,255,0.25)'; ctx.lineWidth=1.5;
+      ctx.beginPath();
+      state.trail.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y)); ctx.stroke();
+    }
+  }
+  // String
+  const gr = ctx.createLinearGradient(cx,cy,bx,by);
+  gr.addColorStop(0,'#484f58'); gr.addColorStop(1,'rgba(72,79,88,0.3)');
+  ctx.strokeStyle=gr; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(cx,cy);
+  ctx.lineTo(bx,by); ctx.stroke();
+  // Ball
+  glow(bx,by,50,'rgb(188,140,255)',0.2);
+  const bgr=ctx.createRadialGradient(bx-5,by-5,0,bx,by,22);
+  bgr.addColorStop(0,'#7c5ce7'); bgr.addColorStop(1,'#3a1f80');
+  circle(bx,by,22,bgr,'#bc8cff',2.5);
+  ctx.font='bold 14px serif'; ctx.fillStyle='white'; ctx.textAlign='center';
+  ctx.fillText('⚪', bx, by+5); ctx.textAlign='left';
+  // Angle arc
+  ctx.strokeStyle='rgba(255,166,87,0.4)'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx,cy+L*0.5); ctx.stroke();
+  ctx.setLineDash([]);
+  label(`θ = ${(state.angle*180/Math.PI).toFixed(1)}°`, bx+28, by, '#ffa657', 12);
+  const speed = Math.abs(state.vel*L*0.01)*8;
+  label(`T ≈ ${(2*Math.PI*Math.sqrt(L/100/params.g)).toFixed(2)}s`, cx+10, cy+30, '#58a6ff', 11);
+  updateMetrics((bx-cx).toFixed(1), speed, 0);
+}
+
+// --- 2: ATIŞ HAREKETİ ---
+function initProjectile() {
+  state = { x:0, y:0, vx:0, vy:0, trail:[], landed:false };
+  const a = params.angle * Math.PI/180;
+  const v0 = 18;
+  state.vx = v0*Math.cos(a); state.vy = v0*Math.sin(a);
+}
+function drawProjectile(dt) {
+  clearCanvas(); drawGrid();
+  const gnd = H - 60;
+  const scx = W*0.06, scy = gnd;
+  const sx = 5, sy = 5;
+  if(playing && !state.landed) {
+    simTime += dt*simSpeed;
+    state.x += state.vx*dt*simSpeed*sx;
+    state.vy -= params.g*dt*simSpeed;
+    state.y += state.vy*dt*simSpeed*sy;
+    if(state.y < 0 && simTime > 0.1) { state.y=0; state.vy*=-0.2;
+    if(Math.abs(state.vy)<0.5){state.landed=true;stop();showNotif(`🎯 Menzil: ${(state.x/sx).toFixed(1)} m`);} }
+    if(state.x > W*1.5) { state.landed=true; stop(); }
+    state.trail.push({x:scx+state.x, y:scy-state.y});
+    if(state.trail.length>400) state.trail.shift();
+  }
+  // Ground
+  ctx.fillStyle='rgba(63,185,80,0.08)'; ctx.fillRect(0,gnd,W,H-gnd);
+  ctx.strokeStyle='rgba(63,185,80,0.4)'; ctx.lineWidth=1;
+  ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(0,gnd); ctx.lineTo(W,gnd); ctx.stroke();
+  ctx.setLineDash([]);
+  // Launch angle indicator
+  const a = params.angle*Math.PI/180;
+  ctx.strokeStyle='rgba(255,166,87,0.4)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(scx,scy); ctx.lineTo(scx+50*Math.cos(a), scy-50*Math.sin(a)); ctx.stroke();
+  label(`${params.angle}°`, scx+55*Math.cos(a), scy-55*Math.sin(a)+5, '#ffa657', 11);
+  // Trail
+  if(state.trail.length>1) {
+    const tg = ctx.createLinearGradient(0,0,state.trail[state.trail.length-1].x,0);
+    tg.addColorStop(0,'rgba(63,185,80,0.05)'); tg.addColorStop(1,'rgba(63,185,80,0.4)');
+    ctx.strokeStyle=tg;
+    ctx.lineWidth=2.5; ctx.beginPath();
+    state.trail.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y)); ctx.stroke();
+  }
+  // Ball
+  const px = scx+state.x, py = scy-state.y;
+  glow(px,py,40,'rgb(63,185,80)',0.2);
+  circle(px,py,18,'#1a3a2a','#3fb950',2.5);
+  ctx.font='bold 12px serif'; ctx.fillStyle='white'; ctx.textAlign='center';
+  ctx.fillText('⚽', px, py+4); ctx.textAlign='left';
+  // Velocity vector
+  const v = Math.sqrt(state.vx*state.vx+state.vy*state.vy);
+  label(`v=${v.toFixed(1)} m/s`, px+22, py-6, '#3fb950', 11);
+  updateMetrics((state.y/sy).toFixed(1), v, 0.5*params.mass*v*v);
+}
+
+// --- 3: DALGA ---
+function drawWave(dt) {
+  clearCanvas();
+  // Arka plan gradyanı
+  const bg = ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#0a0e1a'); bg.addColorStop(1,'#0d1117');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+  drawGrid(60,'rgba(88,166,255,0.04)');
+
+  if(playing) simTime += dt*simSpeed;
+  const t = simTime;
+  const cy = H/2;
+  const A = Math.min(H*0.12, 70);
+  const f1=1.2, f2=1.8, k1=0.025, k2=0.02;
+  // Wave 1
+  ctx.beginPath(); ctx.strokeStyle='rgba(88,166,255,0.45)'; ctx.lineWidth=2;
+  for(let x=0;x<W;x++) {
+    const y=A*Math.sin(k1*x-f1*t);
+    x===0?ctx.moveTo(x,cy+y):ctx.lineTo(x,cy+y);
+  }
+  ctx.stroke();
+  // Wave 2
+  ctx.beginPath(); ctx.strokeStyle='rgba(188,140,255,0.45)'; ctx.lineWidth=2;
+  for(let x=0;x<W;x++) {
+    const y=A*Math.sin(k2*x-f2*t);
+    x===0?ctx.moveTo(x,cy+y):ctx.lineTo(x,cy+y);
+  }
+  ctx.stroke();
+  // Superposition
+  ctx.beginPath();
+  const sg=ctx.createLinearGradient(0,cy-A*2,0,cy+A*2);
+  sg.addColorStop(0,'#3fb950'); sg.addColorStop(0.5,'#58a6ff'); sg.addColorStop(1,'#bc8cff');
+  ctx.strokeStyle=sg; ctx.lineWidth=3;
+  for(let x=0;x<W;x++) {
+    const y=(A*Math.sin(k1*x-f1*t)+A*Math.sin(k2*x-f2*t))*0.7;
+    x===0?ctx.moveTo(x,cy+y):ctx.lineTo(x,cy+y);
+  }
+  ctx.stroke();
+  // Center line
+  ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1; ctx.setLineDash([8,4]);
+  ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(W,cy); ctx.stroke();
+  ctx.setLineDash([]);
+  // Legend
+  ctx.font='600 12px Nunito';
+  ctx.fillStyle='rgba(88,166,255,0.7)'; ctx.fillText('● Dalga 1 (f₁)', 20, cy-A-20);
+  ctx.fillStyle='rgba(188,140,255,0.7)'; ctx.fillText('● Dalga 2 (f₂)', 20, cy-A-5);
+  ctx.fillStyle='rgba(63,185,80,0.9)'; ctx.fillText('● Süperpozisyon', 20, cy-A+10);
+  // Wavelength indicator
+  const lambda = (2*Math.PI/k1);
+  ctx.strokeStyle='rgba(255,166,87,0.4)'; ctx.lineWidth=1;
+  const x0=50, x1=x0+lambda;
+  ctx.beginPath(); ctx.moveTo(x0,cy+A+25);
+  ctx.lineTo(x1,cy+A+25); ctx.stroke();
+  label(`λ₁ = ${lambda.toFixed(0)}px`, x0+lambda/2-20, cy+A+40, '#ffa657', 10);
+  // Freq readout
+  label(`f₁=${f1}Hz`, W-100, 30, '#58a6ff', 11);
+  label(`f₂=${f2}Hz`, W-100, 46, '#bc8cff', 11);
+  label(`v = f×λ`, W-100, 62, '#3fb950', 11);
+}
+
+// --- 4: YAY ---
+function initSpring() {
+  state = { x: params.k > 0 ?
+  80 : 60, vel: 0, trail: [] };
+}
+function drawSpring(dt) {
+  clearCanvas(); drawGrid();
+  const cy = H/2;
+  const wall = 60;
+  const eq = W*0.55;
+  if(playing) {
+    simTime += dt*simSpeed;
+    const omega = Math.sqrt(params.k/params.mass)*0.8;
+    state.vel -= omega*omega*(state.x-eq)*dt*simSpeed;
+    state.x += state.vel*dt*simSpeed;
+    state.vel *= 0.9997;
+  }
+  // Wall
+  ctx.fillStyle='#1c2330'; ctx.fillRect(0,cy-60,wall,120);
+  for(let i=0;i<8;i++){ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(wall,cy-60+i*16);ctx.lineTo(wall-12,cy-60+(i+0.5)*16);ctx.stroke();}
+  ctx.strokeStyle='#484f58';
+  ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(wall,cy-60); ctx.lineTo(wall,cy+60); ctx.stroke();
+  // Spring coils
+  const numCoils=14, coilH=8;
+  const springLen=state.x-wall;
+  ctx.strokeStyle='#8b949e'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(wall,cy);
+  for(let i=0;i<numCoils;i++){
+    const frac=i/numCoils;
+    const x=wall+frac*springLen;
+    const y=cy+(i%2===0?-coilH:coilH);
+    ctx.lineTo(x+(springLen/numCoils)*0.5,y);
+    ctx.lineTo(x+(springLen/numCoils),cy);
+  }
+  ctx.stroke();
+  // Ball
+  glow(state.x,cy,50,'rgb(247,129,102)',0.2);
+  circle(state.x,cy,24,'#3a1a0a','#f78166',3);
+  ctx.font='bold 14px serif'; ctx.fillStyle='white'; ctx.textAlign='center';
+  ctx.fillText('🔴', state.x, cy+5); ctx.textAlign='left';
+  // Equilibrium
+  ctx.strokeStyle='rgba(63,185,80,0.3)'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(eq,cy-50); ctx.lineTo(eq,cy+50); ctx.stroke();
+  ctx.setLineDash([]);
+  label('Denge', eq+6, cy-35, '#3fb950', 10);
+  // x arrow
+  const ext = state.x - eq;
+  if(Math.abs(ext)>3){
+    ctx.strokeStyle='#58a6ff'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(eq,cy+40); ctx.lineTo(state.x,cy+40); ctx.stroke();
+    label(`x=${(ext/30).toFixed(2)}m`, (eq+state.x)/2-20, cy+55, '#58a6ff', 10);
+    const F = -params.k*(ext/30);
+    label(`F=${F.toFixed(1)}N`, state.x+15, cy, '#ffa657', 11);
+  }
+  updateMetrics((ext/30).toFixed(2), Math.abs(state.vel/30).toFixed(1), 0.5*params.k*(ext/30)*(ext/30));
+}
+
+// --- 5: HÜCRE ---
+function drawCell(dt) {
+  clearCanvas();
+  if(playing) simTime += dt*simSpeed;
+  const t = simTime;
+  const cx=W/2, cy=H/2;
+  const R=Math.min(W,H)*0.32;
+
+  // Background glow
+  glow(cx,cy,R*1.4,'rgb(63,185,80)',0.07);
+  // Cell membrane
+  ctx.strokeStyle='#3fb950'; ctx.lineWidth=3.5;
+  ctx.fillStyle='rgba(14,40,20,0.6)';
+  ctx.beginPath(); ctx.ellipse(cx,cy,R,R*0.85,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+  // Nucleus
+  ctx.strokeStyle='#bc8cff'; ctx.lineWidth=2.5;
+  ctx.fillStyle='rgba(40,20,60,0.8)';
+  ctx.beginPath(); ctx.ellipse(cx,cy-R*0.05,R*0.3,R*0.27,0,0,Math.PI*2); ctx.fill();
+  ctx.stroke();
+  // Chromatin in nucleus
+  ctx.strokeStyle='rgba(188,140,255,0.6)'; ctx.lineWidth=1.5;
+  for(let i=0;i<5;i++){
+    const nx=cx+(Math.sin(i*1.2+t*0.3)*R*0.12);
+    const ny=cy+(Math.cos(i*0.9+t*0.2)*R*0.1)-R*0.05;
+    ctx.beginPath(); ctx.arc(nx,ny,4+Math.sin(t+i)*1.5,0,Math.PI*2); ctx.stroke();
+  }
+  if(showLabels){ctx.font='bold 11px Nunito'; ctx.fillStyle='#bc8cff'; ctx.textAlign='center'; ctx.fillText('Çekirdek',cx,cy-R*0.25); ctx.textAlign='left';}
+
+  // Mitochondria (3 adet)
+  const mitoPos=[[cx+R*0.48,cy-R*0.2],[cx+R*0.35,cy+R*0.45],[cx-R*0.5,cy+R*0.3]];
+  mitoPos.forEach(([mx,my],i)=>{
+    const mr=R*0.1, ml=R*0.18;
+    ctx.save(); ctx.translate(mx,my); ctx.rotate(i*0.8+t*0.05);
+    ctx.fillStyle='rgba(255,100,50,0.3)'; ctx.strokeStyle='#f78166'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.ellipse(0,0,ml,mr,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    // Cristae
+    ctx.strokeStyle='rgba(247,129,102,0.5)'; ctx.lineWidth=1;
+    for(let c=1;c<=3;c++){ctx.beginPath();ctx.moveTo(-ml*0.6+c*ml*0.3,-mr*0.7);ctx.lineTo(-ml*0.6+c*ml*0.3,mr*0.7);ctx.stroke();}
+    ctx.restore();
+    if(showLabels&&i===0){ctx.font='10px Nunito';ctx.fillStyle='#f78166';ctx.fillText('Mitokondri',mx+15,my-8);}
+  });
+  // Ribosomes (small dots)
+  for(let i=0;i<18;i++){
+    const a=i*0.35+t*0.02, r2=R*(0.55+0.1*Math.sin(i*7));
+    const rx=cx+Math.cos(a)*r2, ry=cy+Math.sin(a)*r2*0.85;
+    ctx.fillStyle='rgba(88,166,255,0.6)'; ctx.beginPath(); ctx.arc(rx,ry,3,0,Math.PI*2); ctx.fill();
+  }
+  if(showLabels){ctx.font='10px Nunito';ctx.fillStyle='#58a6ff'; const ra=1.2, rr=R*0.65; ctx.fillText('Ribozom',cx+Math.cos(ra)*rr+5,cy+Math.sin(ra)*rr*0.85);}
+
+  // Golgi
+  const gx=cx-R*0.45, gy=cy-R*0.45;
+  for(let i=0;i<4;i++){
+    ctx.strokeStyle=`rgba(255,166,87,${0.4+i*0.15})`; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.ellipse(gx,gy+i*7,R*0.14-i*0.01*R,8,0.2,0,Math.PI*2); ctx.stroke();
+  }
+  if(showLabels){ctx.font='10px Nunito';ctx.fillStyle='#ffa657';ctx.fillText('Golgi',gx-20,gy-12);}
+
+  // Vacuole
+  ctx.fillStyle='rgba(88,166,255,0.12)'; ctx.strokeStyle='rgba(88,166,255,0.4)';
+  ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.ellipse(cx-R*0.25,cy+R*0.5,R*0.13,R*0.1,0.3,0,Math.PI*2); ctx.fill(); ctx.stroke();
+
+  // Hücre zarı label
+  if(showLabels){
+    ctx.font='bold 11px Nunito'; ctx.fillStyle='#3fb950';
+    ctx.fillText('Hücre Zarı', cx+R*0.6, cy);
+    // Arrow
+    ctx.strokeStyle='rgba(63,185,80,0.4)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(cx+R*0.9,cy-3); ctx.lineTo(cx+R*0.92,cy-3); ctx.stroke();
+  }
+}
+
+// --- 6: FOTOSENTEz ---
+function drawPhotosynthesis(dt) {
+  clearCanvas();
+  if(playing) simTime += dt*simSpeed;
+  const t = simTime;
+  const cx=W/2, cy=H/2;
+  // Sky background
+  const sky=ctx.createLinearGradient(0,0,0,H);
+  sky.addColorStop(0,'#0a1a2a'); sky.addColorStop(1,'#0d2a1a');
+  ctx.fillStyle=sky; ctx.fillRect(0,0,W,H);
+  drawGrid(60,'rgba(63,185,80,0.03)');
+
+  // Sun
+  const sunX=W*0.15, sunY=H*0.18;
+  glow(sunX,sunY,100,'rgb(255,200,50)',0.3);
+  circle(sunX,sunY,35,'#ffd700','#ffa657',2);
+  ctx.font='26px serif'; ctx.fillStyle='#ffd700'; ctx.textAlign='center'; ctx.fillText('☀️',sunX,sunY+9); ctx.textAlign='left';
+
+  // Light rays to leaf
+  const leafX=cx, leafY=cy;
+  for(let i=0;i<6;i++){
+    const progress=(t*0.8+i/6)%1;
+    const rx=sunX+(leafX-sunX)*progress + Math.sin(t+i)*8;
+    const ry=sunY+(leafY-sunY)*progress;
+    const alpha=Math.sin(progress*Math.PI)*0.6;
+    ctx.fillStyle=`rgba(255,220,50,${alpha})`;
+    ctx.beginPath(); ctx.arc(rx,ry,4-progress*2,0,Math.PI*2); ctx.fill();
+  }
+  if(showLabels){ctx.font='600 11px Nunito';ctx.fillStyle='rgba(255,220,50,0.7)';ctx.fillText('Işık enerjisi →',sunX+45,sunY-10);}
+
+  // CO2 bubbles coming in
+  for(let i=0;i<4;i++){
+    const p=((t*0.5+i*0.25)%1);
+    const bx=W*0.08+Math.sin(t+i)*20, by=H*0.85-p*(H*0.5);
+    const a=1-Math.abs(p-0.5)*2;
+    ctx.fillStyle=`rgba(247,129,102,${a*0.8})`;
+    ctx.beginPath(); ctx.arc(bx,by,8,0,Math.PI*2); ctx.fill();
+    if(showLabels&&a>0.5){ctx.font='bold 9px JetBrains Mono';ctx.fillStyle=`rgba(247,129,102,${a})`;ctx.fillText('CO₂',bx-12,by+3);}
+  }
+  // H2O drops
+  for(let i=0;i<4;i++){
+    const p=((t*0.4+i*0.25)%1);
+    const bx=W*0.1+i*20, by=H*0.9-p*(H*0.4);
+    const a=1-Math.abs(p-0.5)*2;
+    ctx.fillStyle=`rgba(88,166,255,${a*0.8})`;
+    ctx.beginPath(); ctx.arc(bx,by,6,0,Math.PI*2); ctx.fill();
+    if(showLabels&&a>0.6){ctx.font='bold 9px JetBrains Mono';ctx.fillStyle=`rgba(88,166,255,${a})`;ctx.fillText('H₂O',bx-12,by+3);}
+  }
+
+  // Leaf (yaprak)
+  ctx.save();
+  ctx.translate(leafX,leafY);
+  const ls=Math.min(W,H)*0.2;
+  const leafGr=ctx.createRadialGradient(0,0,0,0,0,ls);
+  leafGr.addColorStop(0,'#2ea043'); leafGr.addColorStop(1,'#14532d');
+  ctx.fillStyle=leafGr; ctx.strokeStyle='#3fb950'; ctx.lineWidth=2.5;
+  ctx.beginPath();
+  ctx.moveTo(0,0); ctx.bezierCurveTo(ls*0.6,-ls*0.9,ls*1.2,-ls*0.3,ls*0.8,ls*0.1);
+  ctx.bezierCurveTo(ls*1.0,ls*0.6,ls*0.4,ls*0.9,0,ls*0.6);
+  ctx.bezierCurveTo(-ls*0.3,ls*0.4,-ls*0.4,-ls*0.1,0,0);
+  ctx.fill(); ctx.stroke();
+  // Damar
+  ctx.strokeStyle='rgba(63,185,80,0.5)'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(ls*0.7,ls*0.35); ctx.stroke();
+  for(let i=1;i<=4;i++){ctx.beginPath();ctx.moveTo(ls*i*0.15,ls*i*0.07);ctx.lineTo(ls*i*0.15+ls*0.2,-ls*0.1);ctx.stroke();}
+  // Kloroplast
+  for(let i=0;i<5;i++){
+    const kx=ls*0.3+i*ls*0.1, ky=ls*0.1+Math.sin(i)*ls*0.08;
+    ctx.fillStyle='rgba(0,200,80,0.5)'; ctx.strokeStyle='rgba(63,185,80,0.7)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.ellipse(kx,ky,ls*0.05,ls*0.03,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+  }
+  ctx.restore();
+  if(showLabels){ctx.font='bold 12px Nunito';ctx.fillStyle='#3fb950';ctx.textAlign='center';ctx.fillText('Yaprak (Kloroplast)',leafX+ls*0.4,leafY+ls*0.8);ctx.textAlign='left';}
+
+  // O2 çıkışı
+  for(let i=0;i<5;i++){
+    const p=((t*0.6+i*0.2)%1);
+    const ox=leafX+ls*0.5+p*100, oy=leafY+ls*0.2-p*100;
+    const a=1-p;
+    ctx.fillStyle=`rgba(63,185,80,${a*0.8})`;
+    ctx.beginPath(); ctx.arc(ox,oy,7,0,Math.PI*2); ctx.fill();
+    if(showLabels&&a>0.5){ctx.font='bold 9px JetBrains Mono';ctx.fillStyle=`rgba(63,185,80,${a})`;ctx.fillText('O₂',ox-8,oy+3);}
+  }
+  // Şeker çıkışı
+  for(let i=0;i<3;i++){
+    const p=((t*0.3+i*0.33)%1);
+    const sx=leafX+ls*0.2+p*60, sy=leafY+ls*0.5+p*80;
+    const a=1-p;
+    ctx.fillStyle=`rgba(255,166,87,${a*0.8})`;
+    ctx.beginPath(); ctx.arc(sx,sy,8,0,Math.PI*2); ctx.fill();
+    if(showLabels&&a>0.5){ctx.font='bold 8px JetBrains Mono';ctx.fillStyle=`rgba(255,166,87,${a})`;ctx.fillText('C₆H₁₂O₆',sx-20,sy+3);}
+  }
+
+  // Equation
+  ctx.font='bold 13px JetBrains Mono';
+  ctx.fillStyle='rgba(255,255,255,0.4)';
+  ctx.textAlign='center';
+  ctx.fillText('6CO₂ + 6H₂O + ışık → C₆H₁₂O₆ + 6O₂', W/2, H-28);
+  ctx.textAlign='left';
+}
+
+// --- 7: KAN DOLAŞIMI ---
+function drawBloodCirculation(dt) {
+  clearCanvas();
+  if(playing) simTime += dt*simSpeed;
+  const t = simTime;
+  const cx=W/2, cy=H/2;
+  drawGrid(60,'rgba(63,185,80,0.03)');
+
+  // Kalp
+  const hx=cx, hy=cy;
+  const hs=Math.min(W,H)*0.1;
+  const beat=1+Math.sin(t*4)*0.05;
+  ctx.save(); ctx.translate(hx,hy); ctx.scale(beat,beat);
+  const hgr=ctx.createRadialGradient(0,0,0,0,0,hs);
+  hgr.addColorStop(0,'#c00020');
+  hgr.addColorStop(1,'#800010');
+  ctx.fillStyle=hgr;
+  ctx.beginPath();
+  ctx.moveTo(0,hs*0.4);
+  ctx.bezierCurveTo(hs,-hs*0.4,-hs*1.2,-hs*1,0,-hs*1.5);
+  ctx.bezierCurveTo(hs*1.2,-hs*1,hs,-hs*0.4,0,hs*0.4);
+  ctx.fill();
+  ctx.restore();
+  ctx.font='20px serif'; ctx.textAlign='center'; ctx.fillText('❤️',hx,hy+8); ctx.textAlign='left';
+  if(showLabels){ctx.font='bold 12px Nunito';ctx.fillStyle='#f78166';ctx.textAlign='center';ctx.fillText('Kalp',hx,hy+hs*1.8);ctx.textAlign='left';}
+
+  // Damarlar ve kan hücreleri
+  const vessels=[
+    {name:'Akciğerler',nx:cx,ny:cy-H*0.28,ox:'rgba(88,166,255,0.5)',emoji:'🫁'},
+    {name:'Beyin',nx:cx-W*0.28,ny:cy-H*0.1,ox:'rgba(63,185,80,0.5)',emoji:'🧠'},
+    {name:'Karaciğer',nx:cx+W*0.28,ny:cy-H*0.05,ox:'rgba(255,166,87,0.5)',emoji:'🟤'},
+    {name:'Kaslar',nx:cx,ny:cy+H*0.28,ox:'rgba(247,129,102,0.5)',emoji:'💪'},
+  ];
+  vessels.forEach((v,vi)=>{
+    const dx=v.nx-hx, dy=v.ny-hy;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    // Artery (going out - bright red)
+    ctx.strokeStyle='rgba(220,30,50,0.5)'; ctx.lineWidth=4;
+    ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(v.nx,v.ny); ctx.stroke();
+    // Vein (coming back - blue-ish)
+    ctx.strokeStyle='rgba(50,80,180,0.4)'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(hx+8,hy+8); ctx.lineTo(v.nx+5,v.ny+5); ctx.stroke();
+    // Blood cell moving
+    for(let i=0;i<3;i++){
+      const p=((t*0.8+vi*0.25+i*0.33)%1);
+      const bx=hx+dx*p, by=hy+dy*p;
+      ctx.fillStyle='rgba(200,20,20,0.8)';
+      ctx.beginPath(); ctx.arc(bx,by,5,0,Math.PI*2); ctx.fill();
+    }
+ 
+    // Organ circle
+    glow(v.nx,v.ny,40,'rgb(63,185,80)',0.15);
+    ctx.fillStyle='rgba(20,30,20,0.8)'; ctx.strokeStyle=v.ox.replace('0.5)','0.8)');
+    ctx.lineWidth=2; ctx.beginPath(); ctx.arc(v.nx,v.ny,28,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.font='18px serif'; ctx.textAlign='center'; ctx.fillText(v.emoji,v.nx,v.ny+7); ctx.textAlign='left';
+    if(showLabels){ctx.font='bold 10px Nunito';ctx.fillStyle='rgba(255,255,255,0.7)';ctx.textAlign='center';ctx.fillText(v.name,v.nx,v.ny+42);ctx.textAlign='left';}
+  });
+
+  // Atım hızı
+  const bpm=70+Math.sin(t*0.5)*5;
+  if(showLabels){ctx.font='bold 12px JetBrains Mono';ctx.fillStyle='rgba(247,129,102,0.8)';ctx.fillText(`♥ ${bpm.toFixed(0)} bpm`,hx+hs*1.5,hy-hs);}
+}
+
+// --- 8: BAKTERİ ---
+function initBacteria() {
+  state = { bacteria: [{x:W/2,y:H/2,a:0,s:1}], timer:0, gen:0 };
+}
+function drawBacteria(dt) {
+  clearCanvas(); drawGrid(40,'rgba(63,185,80,0.04)');
+  if(playing) {
+    simTime += dt*simSpeed;
+    state.timer += dt*simSpeed;
+    if(state.timer > 2.5 && state.bacteria.length < 128) {
+      const newBact=[];
+      state.bacteria.forEach(b=>{
+        newBact.push({x:b.x+Math.random()*60-30,y:b.y+Math.random()*60-30,a:Math.random()*Math.PI*2,s:1});
+        newBact.push({x:b.x+Math.random()*60-30,y:b.y+Math.random()*60-30,a:Math.random()*Math.PI*2,s:1});
+      });
+      state.bacteria=newBact.slice(0,128);
+      state.timer=0; state.gen++;
+      showNotif(`🦠 ${state.gen}. nesil: ${state.bacteria.length} bakteri`);
+    }
+    // Move
+    state.bacteria.forEach(b=>{b.x+=Math.cos(b.a)*0.5;b.y+=Math.sin(b.a)*0.5;b.a+=Math.random()*0.2-0.1;b.x=(b.x+W)%W;b.y=(b.y+H)%H;});
+  }
+  state.bacteria.forEach(b=>{
+    ctx.save(); ctx.translate(b.x,b.y); ctx.rotate(b.a);
+    const col=`hsl(${140+state.gen*5},70%,45%)`;
+    ctx.fillStyle=col; ctx.strokeStyle=col.replace('45%','70%'); ctx.lineWidth=1;
+    ctx.beginPath(); ctx.ellipse(0,0,10,5,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    // Flagella
+    ctx.strokeStyle='rgba(63,185,80,0.4)'; ctx.lineWidth=0.8;
+    ctx.beginPath(); ctx.moveTo(-10,0);
+    for(let i=0;i<5;i++) ctx.lineTo(-10-i*4,(i%2===0?4:-4));
+    ctx.stroke(); ctx.restore();
+  });
+  // Info
+  const N=state.bacteria.length;
+  ctx.font='bold 20px Fredoka One';
+  ctx.fillStyle='rgba(63,185,80,0.8)';
+  ctx.textAlign='center';
+  ctx.fillText(`${N} bakteri`, W/2, 40);
+  ctx.font='bold 13px JetBrains Mono';
+  ctx.fillStyle='rgba(255,255,255,0.3)';
+  ctx.fillText(`N = 1 × 2^${state.gen} = ${N}`, W/2, 62);
+  ctx.textAlign='left';
+  updateMetrics(N,state.gen,0);
+}
+
+// --- 9: ATOM ---
+function drawAtom(dt) {
+  clearCanvas();
+  if(playing) simTime += dt*simSpeed;
+  const t=simTime;
+  const cx=W/2, cy=H/2;
+  const bg=ctx.createRadialGradient(cx,cy,0,cx,cy,Math.min(W,H)*0.5);
+  bg.addColorStop(0,'#0d0d1f'); bg.addColorStop(1,'#0d1117');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+  drawGrid(60,'rgba(247,129,102,0.03)');
+
+  const R=Math.min(W,H)*0.35;
+  const shells=3;
+  // 3 kabuk
+  const electrons=[1,2,3]; // kabuklar
+
+  // Shells
+  for(let s=1;s<=shells;s++){
+    const r=R*s/shells;
+    ctx.strokeStyle=`rgba(247,129,102,${0.08+s*0.03})`;
+    ctx.lineWidth=1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.ellipse(cx,cy,r,r*0.4,0.3,0,Math.PI*2); ctx.stroke();
+    ctx.setLineDash([]);
+    // Electrons on shell
+    const numE=electrons[s-1];
+    for(let e=0;e<numE;e++){
+      const ang=(t*(s===1?2:s===2?1.3:0.8)+e*(Math.PI*2/numE));
+      const ex=cx+Math.cos(ang)*r;
+      const ey=cy+Math.sin(ang)*r*0.4;
+      glow(ex,ey,15,'rgb(88,166,255)',0.4);
+      ctx.fillStyle='#58a6ff'; ctx.strokeStyle='white'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.arc(ex,ey,7,0,Math.PI*2); ctx.fill();
+      ctx.stroke();
+      if(showLabels){ctx.font='bold 8px JetBrains Mono';ctx.fillStyle='white';ctx.textAlign='center';ctx.fillText('e⁻',ex,ey+3);ctx.textAlign='left';}
+    }
+  }
+
+  // Nucleus
+  glow(cx,cy,50,'rgb(247,129,102)',0.35);
+  const nucGr=ctx.createRadialGradient(cx-8,cy-8,0,cx,cy,30);
+  nucGr.addColorStop(0,'#ff6030'); nucGr.addColorStop(1,'#800010');
+  ctx.fillStyle=nucGr; ctx.strokeStyle='#f78166'; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.arc(cx,cy,28,0,Math.PI*2); ctx.fill(); ctx.stroke();
+  // Proton/neutron detail
+  for(let i=0;i<6;i++){
+    const na=i*(Math.PI/3), nr=12;
+    const nx=cx+Math.cos(na)*nr, ny=cy+Math.sin(na)*nr;
+    ctx.fillStyle=i%2===0?'rgba(247,129,102,0.8)':'rgba(200,200,200,0.5)';
+    ctx.beginPath(); ctx.arc(nx,ny,7,0,Math.PI*2); ctx.fill();
+    if(showLabels&&i%2===0){ctx.font='bold 6px Nunito';ctx.fillStyle='white';ctx.textAlign='center';ctx.fillText('p+',nx,ny+2);ctx.textAlign='left';}
+  }
+  if(showLabels){
+    ctx.font='bold 11px Nunito';ctx.fillStyle='#f78166';ctx.textAlign='center';
+    ctx.fillText('Çekirdek',cx,cy+42);
+    ctx.fillStyle='#58a6ff'; ctx.fillText('Elektron Yörüngeleri',cx,H-30);
+    ctx.textAlign='left';
+    const dr=R; ctx.font='10px JetBrains Mono';
+    ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.fillText('n=1',cx+R/3+5,cy-R*0.12);
+    ctx.fillText('n=2',cx+R*2/3+5,cy-R*0.27);
+    ctx.fillText('n=3',cx+R+5,cy-R*0.38);
+  }
+}
+
+// --- 10: MADDE HALLERİ ---
+function initMatter() {
+  state = { particles:[], phase:'solid' };
+  for(let i=0;i<80;i++){
+    state.particles.push({
+      x:W/2+(Math.random()-0.5)*200, y:H/2+(Math.random()-0.5)*200,
+      vx:(Math.random()-0.5)*0.5, vy:(Math.random()-0.5)*0.5, phase:'solid'
+    });
+  }
+}
+function drawMatter(dt) {
+  clearCanvas(); drawGrid(50,'rgba(247,129,102,0.04)');
+  if(playing) simTime += dt*simSpeed;
+  const temp=params.g*10;
+  // repurpose g as temp slider
+  const phase=temp<50?'solid':temp<120?'liquid':'gas';
+  state.phase=phase;
+  const speed=phase==='solid'?0.2:phase==='liquid'?1.5:4;
+  const spread=phase==='solid'?8:phase==='liquid'?25:W*0.45;
+  const cx2=W/2, cy2=H/2;
+  state.particles.forEach(p=>{
+    if(playing){
+      p.x+=p.vx*simSpeed;p.y+=p.vy*simSpeed;
+      // Target
+      const tx=cx2+(Math.random()-0.5)*spread*2;
+      const ty=cy2+(Math.random()-0.5)*spread*2;
+      p.vx+=(tx-p.x)*0.003*simSpeed;p.vy+=(ty-p.y)*0.003*simSpeed;
+      // Damping
+      const damp=phase==='solid'?0.85:phase==='liquid'?0.95:0.99;
+      p.vx*=damp;p.vy*=damp;
+      p.vx+=(Math.random()-0.5)*speed*0.1;
+      p.vy+=(Math.random()-0.5)*speed*0.1;
+      // Bounds
+      if(p.x<20||p.x>W-20)p.vx*=-1;
+      if(p.y<20||p.y>H-20)p.vy*=-1;
+      p.x=Math.max(20,Math.min(W-20,p.x));
+      
+      p.y=Math.max(20,Math.min(H-20,p.y));
+    }
+    const col=phase==='solid'?'#58a6ff':phase==='liquid'?'#3fb950':'#f78166';
+    ctx.fillStyle=col+'99'; ctx.strokeStyle=col; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.arc(p.x,p.y,6,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    // Bonds for solid
+    if(phase==='solid'){
+      state.particles.forEach(p2=>{
+        const dx=p.x-p2.x,dy=p.y-p2.y,d=Math.sqrt(dx*dx+dy*dy);
+        if(d<40){ctx.strokeStyle=`rgba(88,166,255,${(1-d/40)*0.3})`;ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p2.x,p2.y);ctx.stroke();}
+      });
+    }
+  });
+
+  // Phase label
+  const pnames={'solid':'🧊 Katı','liquid':'💧 Sıvı','gas':'💨 Gaz'};
+  const pcol={'solid':'#58a6ff','liquid':'#3fb950','gas':'#f78166'};
+  ctx.font='bold 28px Fredoka One'; ctx.textAlign='center';
+  ctx.fillStyle=pcol[phase]+'cc'; ctx.fillText(pnames[phase],W/2,50);
+  ctx.font='13px JetBrains Mono'; ctx.fillStyle='rgba(255,255,255,0.3)';
+  ctx.fillText(`Sıcaklık: ${temp.toFixed(0)}°C`,W/2,72);
+  ctx.textAlign='left';
+}
+
+// --- 11: ASİT-BAZ ---
+function drawPH(dt) {
+  clearCanvas();
+  if(playing) simTime += dt*simSpeed;
+  const t=simTime;
+  const pH=params.g;
+  // repurpose slider 1-14
+  drawGrid(50,'rgba(247,129,102,0.04)');
+
+  // pH strip
+  const stripW=W*0.75, stripH=40, sx=(W-stripW)/2, sy=H*0.15;
+  const stripGr=ctx.createLinearGradient(sx,0,sx+stripW,0);
+  stripGr.addColorStop(0,'#f00');stripGr.addColorStop(0.25,'#f80');stripGr.addColorStop(0.43,'#ff0');
+  stripGr.addColorStop(0.5,'#0d0');stripGr.addColorStop(0.65,'#0ad');stripGr.addColorStop(1,'#00f');
+  ctx.fillStyle=stripGr;
+  ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.roundRect(sx,sy,stripW,stripH,8); ctx.fill(); ctx.stroke();
+  // pH labels
+  ctx.font='bold 10px JetBrains Mono'; ctx.textAlign='center';
+  for(let i=0;i<=14;i++){
+    const px=sx+stripW*(i/14);
+    ctx.fillStyle='rgba(0,0,0,0.8)'; ctx.fillText(i,px,sy+stripH+14);
+  }
+  // Cursor
+  const cursorX=sx+stripW*(pH/14);
+  ctx.fillStyle='white'; ctx.strokeStyle='rgba(0,0,0,0.8)'; ctx.lineWidth=2;
+  ctx.beginPath();
+  ctx.moveTo(cursorX,sy-5); ctx.lineTo(cursorX-8,sy-18); ctx.lineTo(cursorX+8,sy-18); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.font='bold 14px JetBrains Mono'; ctx.fillStyle='white'; ctx.fillText(`pH ${pH.toFixed(1)}`,cursorX,sy-24);
+
+  // Acid/Base/Neutral label
+  const ptype=pH<7?'ASİT':pH>7?'BAZ':'NÖTR';
+  const ptcol=pH<7?'#f78166':pH>7?'#58a6ff':'#3fb950';
+  ctx.font='bold 28px Fredoka One'; ctx.fillStyle=ptcol+'cc'; ctx.fillText(ptype,W/2,sy+stripH+55);
+
+  // Example substances
+  const examples=[
+    {name:'Mide Asidi',pH:1.5,emoji:'🤢'},
+    {name:'Limon',pH:2.5,emoji:'🍋'},
+    {name:'Elma',pH:3.5,emoji:'🍎'},
+    {name:'Domates',pH:4.2,emoji:'🍅'},
+    {name:'Kahve',pH:5.0,emoji:'☕'},
+    {name:'Saf Su',pH:7.0,emoji:'💧'},
+    {name:'Kan',pH:7.4,emoji:'🩸'},
+    {name:'Kabartma Tozu',pH:8.3,emoji:'🥄'},
+    {name:'Sabun',pH:9.5,emoji:'🧼'},
+    {name:'Çamaşır Suyu',pH:12.5,emoji:'🫧'},
+  ];
+  const cardW=120,cardH=50,cardsPerRow=Math.floor(W/(cardW+10)),csy=sy+stripH+90;
+  examples.forEach((e,i)=>{
+    const col2=e.pH<7?`rgba(247,129,102,${0.2+Math.max(0,(7-e.pH)/7)*0.4})`:e.pH>7?`rgba(88,166,255,${0.2+(e.pH-7)/7*0.4})`:'rgba(63,185,80,0.3)';
+    const cx2=20+(i%(cardsPerRow)*(cardW+10));
+    const cy2=csy+Math.floor(i/cardsPerRow)*(cardH+8);
+    if(cy2+cardH>H) return;
+    const active=Math.abs(e.pH-pH)<0.5;
+    ctx.fillStyle=active?col2:col2.replace(',0.',',.05,'); 
+    ctx.strokeStyle=active?ptcol:'rgba(255,255,255,0.08)'; ctx.lineWidth=active?2:1;
+    ctx.beginPath(); ctx.roundRect(cx2,cy2,cardW,cardH,6); ctx.fill(); ctx.stroke();
+    ctx.font=`bold ${active?13:11}px Nunito`; ctx.fillStyle=active?'white':'rgba(255,255,255,0.5)'; ctx.textAlign='center';
+    ctx.fillText(e.emoji+' '+e.name,cx2+cardW/2,cy2+19);
+    ctx.font=`bold ${active?13:11}px JetBrains Mono`; ctx.fillStyle=active?ptcol:'rgba(255,255,255,0.3)';
+    ctx.fillText(`pH ${e.pH}`,cx2+cardW/2,cy2+37);
+  });
+  ctx.textAlign='left';
+}
+
+// --- 12: GÜNEŞ SİSTEMİ ---
+const PLANETS=[
+  {name:'Merkür',r:4,d:70,speed:4.7,col:'#9b9b9b',emoji:'⚫'},
+  {name:'Venüs',r:7,d:110,speed:3.5,col:'#e8c07a',emoji:'🟡'},
+  {name:'Dünya',r:7.5,d:155,speed:2.9,col:'#4a90d9',emoji:'🌍'},
+  {name:'Mars',r:5.5,d:205,speed:2.4,col:'#c1440e',emoji:'🔴'},
+  {name:'Jüpiter',r:17,d:290,speed:1.3,col:'#c88b3a',emoji:'🟠'},
+  {name:'Satürn',r:14,d:360,speed:0.97,col:'#e4d0a0',emoji:'🪐'},
+  {name:'Uranüs',r:10,d:415,speed:0.68,col:'#7de8e8',emoji:'🔵'},
+  {name:'Neptün',r:9,d:450,speed:0.54,col:'#3f54ba',emoji:'🫐'},
+];
+function drawSolarSystem(dt) {
+  clearCanvas();
+  if(playing) simTime += dt*simSpeed;
+  const t=simTime;
+  const cx=W/2, cy=H/2;
+  const scale=Math.min(W,H)/(500)*0.95;
+  // Stars
+  if(!state.stars){state.stars=Array.from({length:200},()=>({x:Math.random()*W,y:Math.random()*H,s:Math.random()*1.5+0.3}));}
+  state.stars.forEach(s=>{ctx.fillStyle=`rgba(255,255,255,${0.3+Math.random()*0.1})`;ctx.beginPath();ctx.arc(s.x,s.y,s.s,0,Math.PI*2);ctx.fill();});
+
+  // Sun
+  glow(cx,cy,80,'rgb(255,180,0)',0.5);
+  const sunGr=ctx.createRadialGradient(cx-10,cy-10,0,cx,cy,40*scale);
+  sunGr.addColorStop(0,'#fff5a0');sunGr.addColorStop(0.4,'#ffd700');sunGr.addColorStop(1,'#ff6600');
+  ctx.fillStyle=sunGr; ctx.beginPath(); ctx.arc(cx,cy,40*scale,0,Math.PI*2); ctx.fill();
+  ctx.font='22px serif'; ctx.textAlign='center';
+  ctx.fillText('☀️',cx,cy+8); ctx.textAlign='left';
+
+  // Planets
+  const maxD=Math.max(PLANETS[PLANETS.length-1].d*scale,(Math.min(W,H)/2)-20);
+  const sc2=Math.min(W,H)*0.45/(PLANETS[PLANETS.length-1].d);
+
+  PLANETS.forEach(p=>{
+    const d=p.d*sc2;
+    if(d>Math.min(W,H)*0.47) return;
+    // Orbit
+    ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.lineWidth=0.8;
+    ctx.beginPath(); ctx.arc(cx,cy,d,0,Math.PI*2); ctx.stroke();
+    // Position
+    const ang=t*p.speed*0.1;
+    const px2=cx+Math.cos(ang)*d, py2=cy+Math.sin(ang)*d;
+    // Glow
+    glow(px2,py2,p.r*2.5,'rgb('+parseInt(p.col.slice(1,3),16)+','+parseInt(p.col.slice(3,5),16)+','+parseInt(p.col.slice(5,7),16)+')',0.3);
+    // Planet
+    const pgr=ctx.createRadialGradient(px2-p.r*0.3,py2-p.r*0.3,0,px2,py2,p.r*sc2*3);
+    pgr.addColorStop(0,'white'); pgr.addColorStop(0.3,p.col); pgr.addColorStop(1,'rgba(0,0,0,0.5)');
+    ctx.fillStyle=pgr; ctx.beginPath(); ctx.arc(px2,py2,Math.max(p.r*sc2*3,4),0,Math.PI*2); ctx.fill();
+    // Saturn rings
+    if(p.name==='Satürn'){
+      ctx.strokeStyle='rgba(200,180,100,0.35)'; 
+      ctx.lineWidth=2;
+      ctx.beginPath(); ctx.ellipse(px2,py2,p.r*sc2*5,p.r*sc2*1.5,0.3,0,Math.PI*2); ctx.stroke();
+    }
+    if(showLabels){
+      ctx.font='bold 10px Nunito';
+      ctx.fillStyle='rgba(255,255,255,0.6)';
+      ctx.textAlign='center'; ctx.fillText(p.name,px2,py2-p.r*sc2*3-6); ctx.textAlign='left';
+    }
+  });
+}
+
+// --- 13: AY EVRELERİ ---
+const MOON_PHASES=['🌑 Yeni Ay','🌒 İlk Hilal','🌓 İlk Dördün','🌔 Şişen Hilal','🌕 Dolunay','🌖 Azalan Hilal','🌗 Son Dördün','🌘 Eski Hilal'];
+function drawMoonPhases(dt) {
+  clearCanvas();
+  if(playing) simTime += dt*simSpeed;
+  const t=simTime;
+  const cx=W/2, cy=H/2;
+
+  // Stars
+  if(!state.stars){state.stars=Array.from({length:150},()=>({x:Math.random()*W,y:Math.random()*H,s:Math.random()*1.2+0.3}));}
+  state.stars.forEach(s=>{ctx.fillStyle='rgba(255,255,255,0.4)';ctx.beginPath();ctx.arc(s.x,s.y,s.s,0,Math.PI*2);ctx.fill();});
+  // Earth
+  glow(cx,cy,70,'rgb(63,100,255)',0.25);
+  const egr=ctx.createRadialGradient(cx-10,cy-10,0,cx,cy,35);
+  egr.addColorStop(0,'#4a90d9'); egr.addColorStop(0.7,'#2a60a9'); egr.addColorStop(1,'#1a3070');
+  ctx.fillStyle=egr; ctx.beginPath(); ctx.arc(cx,cy,35,0,Math.PI*2); ctx.fill();
+  ctx.font='22px serif'; ctx.textAlign='center'; ctx.fillText('🌍',cx,cy+8); ctx.textAlign='left';
+  if(showLabels){ctx.font='bold 11px Nunito';ctx.fillStyle='rgba(255,255,255,0.5)';ctx.textAlign='center';ctx.fillText('Dünya',cx,cy+48);ctx.textAlign='left';}
+
+  // Sun direction indicator
+  const sunDir=0; // right side = sun
+  ctx.strokeStyle='rgba(255,200,50,0.2)'; ctx.lineWidth=1; ctx.setLineDash([8,4]);
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+W*0.48,cy); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.font='bold 11px Nunito'; ctx.fillStyle='rgba(255,200,50,0.5)'; ctx.fillText('← Güneş ışığı',cx+10,cy-8);
+
+  // Moon orbit
+  const orbitR=Math.min(W,H)*0.35;
+  ctx.strokeStyle='rgba(255,255,255,0.07)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.arc(cx,cy,orbitR,0,Math.PI*2); ctx.stroke();
+
+  // Moon position
+  const moonAng=-t*0.4; // counterclockwise
+  const mx=cx+Math.cos(moonAng)*orbitR, my=cy+Math.sin(moonAng)*orbitR;
+
+  // Moon
+  glow(mx,my,40,'rgb(200,200,200)',0.2);
+  ctx.fillStyle='#c8c8c8';
+  ctx.strokeStyle='#e0e0e0'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.arc(mx,my,22,0,Math.PI*2); ctx.fill(); ctx.stroke();
+  // Shadow
+  const phase=(moonAng%(Math.PI*2)+Math.PI*2)%(Math.PI*2);
+  const shadowX=mx+Math.cos(moonAng-Math.PI)*22;
+  ctx.fillStyle='rgba(5,10,20,0.85)';
+  ctx.save(); ctx.beginPath();
+  const shadowScale=Math.abs(Math.cos(phase));
+  ctx.ellipse(mx,my,22*Math.max(shadowScale,0.01),22,phase<Math.PI?0:Math.PI,0,Math.PI*2);
+  if(phase<Math.PI) { // growing shadow
+    ctx.arc(mx,my,22,0,Math.PI*2,true);
+  } else {
+    ctx.arc(mx,my,22,0,Math.PI*2);
+  }
+  ctx.fill(); ctx.restore();
+  ctx.font='20px serif'; ctx.textAlign='center'; ctx.fillText('🌑',mx,my+7); ctx.textAlign='left';
+
+  // Phase display
+  const phaseIdx=Math.floor(((moonAng%(Math.PI*2)+Math.PI*2)%(Math.PI*2))/(Math.PI*2)*8)%8;
+  ctx.font='bold 22px Nunito'; ctx.textAlign='center';
+  ctx.fillStyle='rgba(255,255,255,0.8)';
+  ctx.fillText(MOON_PHASES[phaseIdx],W/2,H-30);
+  ctx.textAlign='left';
+  // 8 phases mini diagram
+  const miniR=H*0.1;
+  for(let i=0;i<8;i++){
+    const a=i*(Math.PI*2/8)-Math.PI/2;
+    const miX=cx+Math.cos(a)*orbitR*0.6, miY=cy+Math.sin(a)*orbitR*0.6;
+    ctx.font=(i===phaseIdx)?'18px serif':'13px serif'; ctx.textAlign='center';
+    ctx.fillStyle=i===phaseIdx?'white':'rgba(255,255,255,0.3)';
+    ctx.fillText(MOON_PHASES[i].split(' ')[0],miX,miY+5);
+    ctx.textAlign='left';
+  }
+}
+
+// --- 14: ELEKTRİK DEVRESİ ---
+function initCircuit() {
+  state = { brightness: 1, seriesMode: true };
+}
+function drawCircuit(dt) {
+  clearCanvas(); drawGrid(50,'rgba(255,166,87,0.04)');
+  // Elektrik devrelerinin hep akması için 'if(playing)' kontrolünü kaldırıyoruz.
+  simTime += dt*simSpeed;
+  const t=simTime;
+  const V=params.height/10; // 0-30V
+  const R_lamp=params.g; // Her bir lamba direnci
+  const isSerial = state.seriesMode;
+  const R_total = isSerial ? (R_lamp * 2) : (R_lamp / 2); // Seri/Paralel eşdeğer direnç hesaplaması
+  const I=V/R_total;
+  
+  const cx=W/2, cy=H/2;
+  const bw=W*0.65, bh=H*0.5;
+  const bx=cx-bw/2, by=cy-bh/2;
+  // Battery
+  const batW=30, batH=60;
+  ctx.fillStyle='rgba(63,185,80,0.12)'; ctx.strokeStyle='#3fb950'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.roundRect(bx-10-batW,cy-batH/2,batW,batH,4); ctx.fill(); ctx.stroke();
+  const fillH=batH*0.8;
+  ctx.fillStyle='#3fb950'; ctx.fillRect(bx-10-batW+4,cy-batH/2+(batH-fillH)/2,batW-8,fillH);
+  ctx.font='bold 10px JetBrains Mono'; ctx.textAlign='center'; ctx.fillStyle='white'; ctx.fillText(`${V.toFixed(0)}V`,bx-10-batW/2,cy+batH/2+14); ctx.textAlign='left';
+  ctx.fillStyle='rgba(255,255,255,0.8)'; ctx.font='bold 14px Nunito'; ctx.textAlign='center';
+  ctx.fillText('+',bx-10-batW/2,cy-batH/2-4); ctx.fillText('−',bx-10-batW/2,cy+batH/2+2); ctx.textAlign='left';
+
+  // Wires
+  ctx.strokeStyle='rgba(255,166,87,0.5)';
+  ctx.lineWidth=3;
+  // Top wire
+  ctx.beginPath(); ctx.moveTo(bx-10,cy-batH/2); ctx.lineTo(bx-10,by-10); ctx.lineTo(bx+bw+10,by-10); ctx.lineTo(bx+bw+10,cy); ctx.stroke();
+  // Bottom wire
+  ctx.beginPath(); ctx.moveTo(bx-10,cy+batH/2); ctx.lineTo(bx-10,by+bh+10); ctx.lineTo(bx+bw+10,by+bh+10); ctx.lineTo(bx+bw+10,cy);
+  ctx.stroke();
+
+  // Current animation
+  const numElec=Math.min(Math.round(I*3),15);
+  const pathPoints=[
+    {x:bx-10,y:cy-batH/2},{x:bx-10,y:by-10},{x:bx+bw*0.3,y:by-10},
+    {x:bx+bw*0.5,y:by-10},{x:bx+bw*0.7,y:by-10},{x:bx+bw+10,y:by-10},
+    {x:bx+bw+10,y:cy},{x:bx+bw+10,y:by+bh+10},{x:bx+bw*0.5,y:by+bh+10},
+    {x:bx,y:by+bh+10},{x:bx-10,y:by+bh+10},{x:bx-10,y:cy+batH/2}
+  ];
+  const totalLen=pathPoints.length-1;
+  for(let i=0;i<numElec;i++){
+    const p=((t*I*0.3+i/numElec)%1)*totalLen;
+    const seg=Math.floor(p),frac=p-seg;
+    if(seg>=pathPoints.length-1) continue;
+    const ex=pathPoints[seg].x+(pathPoints[seg+1].x-pathPoints[seg].x)*frac;
+    const ey=pathPoints[seg].y+(pathPoints[seg+1].y-pathPoints[seg].y)*frac;
+    ctx.fillStyle='rgba(255,200,50,0.9)';
+    ctx.beginPath(); ctx.arc(ex,ey,5,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  // Lamps
+  const lampPositions=isSerial?[[bx+bw*0.25,by-10],[bx+bw*0.65,by-10]]:[[bx+bw*0.5,by+bh*0.1],[bx+bw*0.5,by+bh*0.6]];
+  lampPositions.forEach(([lx,ly],li)=>{
+    const lamp_V = isSerial ? (V / 2) : V;
+    const bright = lamp_V / R_lamp; 
+    glow(lx,ly,40+bright*15,'rgb(255,220,50)',Math.min(bright/10,0.8));
+    ctx.fillStyle='rgba(50,40,0,0.8)'; ctx.strokeStyle='rgba(255,200,50,0.8)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(lx,ly,18,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    const innerBright=Math.min(bright/10, 1);
+    ctx.fillStyle=`rgba(255,230,100,${innerBright})`;
+    ctx.beginPath(); ctx.arc(lx,ly,10,0,Math.PI*2); ctx.fill();
+    ctx.font='14px serif'; ctx.textAlign='center'; ctx.fillText('💡',lx,ly+6); ctx.textAlign='left';
+    if(showLabels){ctx.font='10px JetBrains Mono';ctx.fillStyle='rgba(255,200,50,0.7)';ctx.textAlign='center';ctx.fillText(`${R_lamp.toFixed(1)}Ω`,lx,ly+28);ctx.textAlign='left';}
+  });
+  
+  // Metrics
+  ctx.font='bold 13px JetBrains Mono'; ctx.fillStyle='rgba(255,255,255,0.3)';
+  ctx.textAlign='center';
+  ctx.fillText(`V=${V.toFixed(1)}V  I=${I.toFixed(2)}A  R_eş=${R_total.toFixed(1)}Ω  P=${(V*I).toFixed(1)}W`,W/2,H-30);
+  ctx.textAlign='left';
+  updateMetrics(V.toFixed(1), I.toFixed(2), (V*I).toFixed(1));
+
+  // Mode toggle
+  ctx.font='bold 12px Nunito'; ctx.textAlign='center';
+  ctx.fillStyle=isSerial?'rgba(88,166,255,0.8)':'rgba(255,255,255,0.2)';
+  ctx.fillText('⊶ Seri Devre',cx-80,30);
+  ctx.fillStyle=!isSerial?'rgba(88,166,255,0.8)':'rgba(255,255,255,0.2)';
+  ctx.fillText('⊷ Paralel Devre',cx+80,30);
+  ctx.textAlign='left';
+}
+
+// --- 15: OHM ---
+function drawOhm(dt) {
+  clearCanvas(); drawGrid(50,'rgba(255,166,87,0.04)');
+  // Ohm devresi de hep akması için 'if(playing)' kontrolünü kaldırıyoruz.
+  simTime += dt*simSpeed;
+  const t=simTime;
+  const V=params.height/10;
+  // 0-30V
+  const R=params.g;
+  const I=V/R;
+  const P=V*I;
+  const cx=W/2, cy=H/2;
+
+  // Triangle visualization
+  const tri=[{x:cx,y:cy-100},{x:cx-90,y:cy+60},{x:cx+90,y:cy+60}];
+  // Fill with gradient
+  const zones=[
+    {pts:[tri[0],{x:cx-45,y:cy-20},{x:cx+45,y:cy-20}],col:'rgba(255,166,87,0.2)',label:'V',val:`${V.toFixed(1)}V`,tcol:'#ffa657'},
+    {pts:[tri[0],tri[1],{x:cx-45,y:cy-20},{x:cx,y:cy+60},{x:cx-45,y:cy-20}],col:'rgba(88,166,255,0.2)',label:'I',val:`${I.toFixed(2)}A`,tcol:'#58a6ff'},
+    {pts:[tri[0],tri[2],{x:cx+45,y:cy-20},{x:cx,y:cy+60},{x:cx+45,y:cy-20}],col:'rgba(247,129,102,0.2)',label:'R',val:`${R.toFixed(1)}Ω`,tcol:'#f78166'},
+  ];
+  // Main triangle
+  ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(tri[0].x,tri[0].y); ctx.lineTo(tri[1].x,tri[1].y); ctx.lineTo(tri[2].x,tri[2].y); ctx.closePath(); ctx.stroke();
+  // Middle divider
+  ctx.beginPath(); ctx.moveTo(cx-45,cy-20); ctx.lineTo(cx+45,cy-20); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,cy+60); ctx.lineTo(cx,cy-20); ctx.stroke();
+  // Labels
+  ctx.font='bold 28px Fredoka One'; ctx.textAlign='center';
+  ctx.fillStyle='#ffa657'; ctx.fillText('V',cx,cy-50);
+  ctx.fillStyle='#58a6ff'; ctx.fillText('I',cx-55,cy+45);
+  ctx.fillStyle='#f78166'; ctx.fillText('R',cx+55,cy+45);
+  ctx.font='bold 14px JetBrains Mono';
+  ctx.fillStyle='rgba(255,255,255,0.8)';
+  ctx.fillText(`${V.toFixed(1)}V`,cx,cy-24);
+  ctx.fillText(`${I.toFixed(2)}A`,cx-52,cy+70);
+  ctx.fillText(`${R.toFixed(0)}Ω`,cx+52,cy+70);
+
+  // Formula
+  ctx.font='bold 16px JetBrains Mono'; ctx.fillStyle='rgba(255,255,255,0.5)';
+  ctx.fillText('V = I × R',cx,cy+120);
+
+  // Meter cards
+  const meters=[
+    {label:'Gerilim (V)',val:`${V.toFixed(1)}`,unit:'Volt',col:'#ffa657',x:W*0.1,y:H*0.15},
+    {label:'Akım (I)',val:`${I.toFixed(2)}`,unit:'Amper',col:'#58a6ff',x:W*0.1,y:H*0.38},
+    {label:'Direnç (R)',val:`${R.toFixed(0)}`,unit:'Ohm',col:'#f78166',x:W*0.1,y:H*0.61},
+    {label:'Güç (P)',val:`${P.toFixed(1)}`,unit:'Watt',col:'#3fb950',x:W*0.75,y:H*0.35},
+  ];
+  meters.forEach(m=>{
+    ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.strokeStyle=m.col+'44'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.roundRect(m.x,m.y,130,72,8); ctx.fill(); ctx.stroke();
+    ctx.font='9px JetBrains Mono'; ctx.fillStyle=m.col+'88'; ctx.textAlign='left';
+    ctx.fillText(m.label,m.x+10,m.y+16);
+    ctx.font='bold 28px JetBrains Mono'; ctx.fillStyle=m.col;
+    ctx.fillText(m.val,m.x+10,m.y+50);
+    ctx.font='10px Nunito'; ctx.fillStyle='rgba(255,255,255,0.3)';
+    ctx.fillText(m.unit,m.x+10,m.y+66);
+  });
+  // Gauge for power
+  const gx=W*0.82, gy=H*0.6, gr=55;
+  ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=8;
+  ctx.beginPath(); ctx.arc(gx,gy,gr,Math.PI*0.75,Math.PI*2.25); ctx.stroke();
+  const pmax=200, pangle=Math.PI*0.75+(Math.min(P,pmax)/pmax)*Math.PI*1.5;
+  ctx.strokeStyle='#3fb950'; ctx.lineWidth=8;
+  ctx.beginPath();
+  ctx.arc(gx,gy,gr,Math.PI*0.75,pangle); ctx.stroke();
+  ctx.font='bold 16px JetBrains Mono'; ctx.fillStyle='#3fb950'; ctx.textAlign='center';
+  ctx.fillText(`${P.toFixed(0)}W`,gx,gy+6);
+  ctx.font='9px Nunito'; ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.fillText('Güç',gx,gy+20);
+  ctx.textAlign='left';
+}
+
+// ═══════════════════════════════════════
+//  MAIN DRAW DISPATCHER
+// ═══════════════════════════════════════
+const drawFns=[
+  drawFreeFall, drawPendulum, drawProjectile, drawWave, drawSpring,
+  drawCell, drawPhotosynthesis, drawBloodCirculation, drawBacteria,
+  drawAtom, drawMatter, drawPH,
+  drawSolarSystem, drawMoonPhases,
+  drawCircuit, drawOhm
+];
+function initFns() {
+  const inits=[initFreeFall,initPendulum,initProjectile,null,initSpring,null,null,null,initBacteria,null,initMatter,null,null,null,initCircuit,null];
+  if(inits[currentSim]) inits[currentSim]();
+  else state={};
+}
+
+// ═══════════════════════════════════════
+//  ANIMATION LOOP
+// ═══════════════════════════════════════
+let last=0;
+function animate(now){
+  requestAnimationFrame(animate);
+  const dt=Math.min((now-last)/1000,0.05);
+  last=now;
+  const fn=drawFns[currentSim];
+  if(fn) fn(dt);
+}
+requestAnimationFrame(animate);
+// ═══════════════════════════════════════
+//  UI HELPERS
+// ═══════════════════════════════════════
+function updateMetrics(y,v,ke){
+  document.getElementById('mv-y').textContent=y;
+  document.getElementById('mv-v').textContent=v;
+  document.getElementById('mv-t').textContent=simTime.toFixed(2);
+  document.getElementById('mv-ke').textContent=ke;
+  document.getElementById('hm-t').textContent=simTime.toFixed(2)+' s';
+  document.getElementById('hm-y').textContent=y;
+  document.getElementById('hm-v').textContent=v;
+  // Energy bar (freq fall only)
+  if(currentSim===0){
+    const h=parseFloat(y)||0, v2=parseFloat(v)||0;
+    const pe=params.mass*params.g*h, ke2=0.5*params.mass*v2*v2;
+    const tot=pe+ke2||1;
+    document.getElementById('peBar').style.width=(pe/tot*100)+'%';
+    document.getElementById('keBar').style.width=(ke2/tot*100)+'%';
+    // Graph
+    const gt=simTime, maxT=Math.sqrt(2*params.height/params.g)||1;
+    const gx=Math.min(gt/maxT*238,238);
+    const gy=65-Math.min(v2/(params.g*maxT)*65,65);
+    graphData.push(`${gx.toFixed(1)},${gy.toFixed(1)}`);
+    if(graphData.length>1) document.getElementById('graphLine').setAttribute('points',graphData.join(' '));
+  }
+}
+
+function stop(){
+  playing=false;
+  const pb=document.getElementById('playBtn');
+  pb.textContent='▶ Tekrar'; pb.className='play-btn go';
+  document.getElementById('stxt').textContent='Tamamlandı!';
+  document.getElementById('sdot').style.background='#ffa657';
+}
+
+function togglePlay(){
+  if(simTime>0&&!playing&&document.getElementById('playBtn').textContent.includes('Tekrar')){
+    resetSim();
+    return;
+  }
+  playing=!playing;
+  const pb=document.getElementById('playBtn');
+  if(playing){
+    pb.textContent='⏸ Duraklat'; pb.className='play-btn stop';
+    document.getElementById('stxt').textContent='Simülasyon çalışıyor...';
+    document.getElementById('sdot').style.background='#3fb950';
+  } else {
+    pb.textContent='▶ Devam'; pb.className='play-btn go';
+    document.getElementById('stxt').textContent='Duraklatıldı';
+    document.getElementById('sdot').style.background='#ffa657';
+  }
+}
+
+function resetSim(){
+  playing=false; simTime=0; graphData=[];
+  document.getElementById('playBtn').textContent='▶ Başlat';
+  document.getElementById('playBtn').className='play-btn go';
+  document.getElementById('stxt').textContent='Hazır — Başlat butonuna basın';
+  document.getElementById('sdot').style.background='#3fb950';
+  document.getElementById('graphLine').setAttribute('points','0,65');
+  initFns();
+}
+
+function selectSim(idx, el){
+  currentSim=idx; playing=false; simTime=0; graphData=[];
+  const s=SIMS[idx];
+  document.querySelectorAll('.sim-item').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active');
+  el.style.borderLeftColor=`var(--${s.cat})`;
+  document.getElementById('rpTitle').textContent=s.name;
+  const fEl=document.getElementById('rpFormula');
+  fEl.textContent=s.formula;
+  fEl.style.color=s.color;
+  fEl.style.background=`${s.color}12`;
+  fEl.style.border=`1px solid ${s.color}25`;
+  document.getElementById('rpCaption').textContent=s.caption;
+  document.getElementById('hudTitle').textContent=s.title;
+  const badge=document.getElementById('hudBadge');
+  badge.textContent=s.cat.toUpperCase();
+  badge.style.color=s.color;
+  badge.style.background=`${s.color}12`;
+  badge.style.border=`1px solid ${s.color}25`;
+  document.getElementById('stxt').textContent='Hazır — Başlat butonuna basın';
+  document.getElementById('sdot').style.background='#3fb950';
+  document.getElementById('playBtn').textContent='▶ Başlat'; document.getElementById('playBtn').className='play-btn go';
+  document.getElementById('graphLine').setAttribute('points','0,65');
+  document.getElementById('mv-y').textContent='—';
+  document.getElementById('mv-v').textContent='0.0';
+  document.getElementById('mv-t').textContent='0.00';
+  document.getElementById('mv-ke').textContent='0.0';
+  document.getElementById('peBar').style.width='100%';
+  document.getElementById('keBar').style.width='0%';
+  
+  // PARAMETRE ETİKETLERİNİ DİNAMİK GÜNCELLE
+  const l_h = document.querySelector('.srow:nth-child(1) .slabel');
+  const l_g = document.querySelector('.srow:nth-child(2) .slabel');
+  if(s.cat === 'elektrik') {
+    if(l_h) l_h.textContent = 'Gerilim (V)';
+    if(l_g) l_g.textContent = 'Direnç (R)';
+  } else {
+    if(l_h) l_h.textContent = 'Başlangıç yüksekliği';
+    if(l_g) l_g.textContent = 'Yerçekimi (g)';
+  }
+
+  // Theory & quiz
+  document.getElementById('theoryContent').innerHTML=`<div class="rp-slabel">Bilgi & Açıklamalar</div>${s.theory}`;
+  initFns();
+  loadQuiz(s);
+  showNotif(`📚 ${s.name} — ${s.grade}`);
+}
+
+function loadQuiz(s){
+  quizIdx=0;
+  renderQuiz(s);
+}
+
+// -------------------------------------------------------------
+// YENİLENEN (HATASIZ) QUİZ MANTIĞI
+// -------------------------------------------------------------
+function renderQuiz(s){
+  if(!s.quizzes||!s.quizzes.length){
+    document.getElementById('quizContent').innerHTML='<div style="padding:12px;color:var(--text2);font-size:12px;">Bu konu için quiz yakında eklenecek!</div>';
+    return;
+  }
+  const q=s.quizzes[quizIdx%s.quizzes.length];
+  // q.exp (açıklama metni) artık fonksiyona string olarak gönderilmiyor, doğrudan JS'den okunuyor
+  document.getElementById('quizContent').innerHTML=`
+    <div class="rp-slabel" style="margin-bottom:12px">SORU ${(quizIdx%s.quizzes.length)+1}/${s.quizzes.length}</div>
+    <div class="quiz-q">${q.q}</div>
+    <div class="quiz-opts">
+      ${q.opts.map((o,i)=>`<button class="qopt" onclick="checkQuiz(${i},${q.ans})">${String.fromCharCode(65+i)}. ${o}</button>`).join('')}
+    </div>
+    <div class="quiz-feedback" id="qfeedback"></div>
+    <button class="quiz-next" onclick="nextQuiz()" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border2);display:none" id="qnextbtn">Sonraki Soru →</button>
+  `;
+}
+
+function checkQuiz(chosen, ans){
+  const s = SIMS[currentSim];
+  const q = s.quizzes[quizIdx % s.quizzes.length];
+  
+  const opts=document.querySelectorAll('.qopt');
+  opts.forEach(o=>o.disabled=true);
+  opts[chosen].classList.add(chosen===ans?'correct':'wrong');
+  if(chosen!==ans) opts[ans].classList.add('correct');
+  
+  const fb=document.getElementById('qfeedback');
+  fb.innerHTML=`<div style="color:${chosen===ans?'#3fb950':'#f78166'};font-weight:700;margin-bottom:4px">${chosen===ans?'✅ Doğru!':'❌ Yanlış!'}</div><div style="color:var(--text2)">${q.exp}</div>`;
+  document.getElementById('qnextbtn').style.display='block';
+}
+// -------------------------------------------------------------
+
+function nextQuiz(){
+  quizIdx++;
+  renderQuiz(SIMS[currentSim]);
+}
+
+function setP(k,v){
+  params[k]=parseFloat(v);
+  const map={height:'lv-h',g:'lv-g',mass:'lv-m',drag:'lv-d',angle:'lv-a',len:'lv-l',k:'lv-k'};
+  const fmts={height:v=>Math.round(v)+' m',g:v=>parseFloat(v).toFixed(2)+' m/s²',mass:v=>parseFloat(v).toFixed(1)+' kg',drag:v=>parseFloat(v).toFixed(2),angle:v=>Math.round(v)+'°',len:v=>parseFloat(v).toFixed(1)+' m',k:v=>parseFloat(v).toFixed(1)+' N/m'};
+  if(map[k]&&document.getElementById(map[k]))
+    document.getElementById(map[k]).textContent=(fmts[k]||String)(v);
+  if(!playing) initFns();
+}
+
+function setSpeed(v){
+  simSpeed=parseFloat(v);
+  document.getElementById('speedLbl').textContent=parseFloat(v).toFixed(1)+'×';
+}
+
+function setView(m,el){
+  viewMode=m;
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function toggleLabels(el){
+  showLabels=!showLabels; el.classList.toggle('active');
+}
+
+function toggleTrail(el){
+  showTrail=!showTrail; el.classList.toggle('active');
+  if(!showTrail&&state) state.trail=[];
+}
+
+function switchTab(tab,el){
+  document.querySelectorAll('.rptab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.rptc').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('rptc-'+tab).classList.add('active');
+}
+
+function filterCat(cat, el){
+  document.querySelectorAll('.hcat').forEach(h=>h.classList.remove('active'));
+  el.classList.add('active');
+  // Find first sim of this cat and select it
+  const first=SIMS.find(s=>s.cat===cat);
+  if(first){
+    const el2=document.querySelectorAll('.sim-item')[first.id];
+    if(el2) selectSim(first.id,el2);
+    el2.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+}
+
+function showNotif(msg){
+  const n=document.getElementById('notif');
+  document.getElementById('notifTxt').textContent=msg;
+  n.classList.add('show');
+  setTimeout(()=>n.classList.remove('show'),3000);
+}
+
+// Canvas click for circuit mode switch
+canvas.addEventListener('click', e=>{
+  if(currentSim===14){
+    const cx=W/2;
+    if(e.offsetX<cx) { state.seriesMode=true; showNotif('⊶ Seri Devre modu'); }
+    else { state.seriesMode=false; showNotif('⊷ Paralel Devre modu'); }
+  }
+});
+// Init first sim
+selectSim(0, document.querySelector('.sim-item.active'));
+showNotif('🔬 Fen Bilimleri Lab\'a hoş geldin! Sol menüden konu seç.');
+</script>
+</body>
+</html>
